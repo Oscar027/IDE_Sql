@@ -29,7 +29,6 @@ public class FXConnectionSQLServer implements FXConnection{
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver").getDeclaredConstructor().newInstance();
             if (TypeConnection.equals("Windows Authentication")){
                 connection = DriverManager.getConnection("jdbc:sqlserver://localhost;integratedSecurity=true;");
-                //DatabaseMetaData dbm = conexion.getMetaData();
             }
             else if (TypeConnection.equals("SQL Server Authentication")){
                 connection = DriverManager.getConnection("jdbc:sqlserver://localhost;user=" + Username + ";password=" + Password);
