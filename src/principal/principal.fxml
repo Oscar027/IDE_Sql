@@ -189,7 +189,7 @@
                                           </ImageView>
                                        </graphic>
                                     </MenuItem>
-                                    <MenuItem mnemonicParsing="false" text="Oracle">
+                                    <MenuItem fx:id="toOracle" mnemonicParsing="false" text="Oracle">
                                        <graphic>
                                           <ImageView fitHeight="20.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
@@ -198,7 +198,7 @@
                                           </ImageView>
                                        </graphic>
                                     </MenuItem>
-                                    <MenuItem mnemonicParsing="false" text="SQL Server">
+                                    <MenuItem fx:id="toSQLServer" mnemonicParsing="false" text="SQL Server">
                                        <graphic>
                                           <ImageView fitHeight="20.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                              <image>

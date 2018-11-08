@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import mysql.MySQLController;
 import resources.classes.toConnection;
+import sqlserver.SQLServerController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -37,7 +38,7 @@ public class PrincipalController implements Initializable {
     private TreeView <String> treeView;
 
     @FXML
-    private MenuItem toMySQL;
+    private MenuItem toMySQL, toSQLServer, toOracle;
 
     public Image mysql = new Image(getClass().getResourceAsStream("../resources/images/mysql_color1.png"));
     public Image oracle = new Image(getClass().getResourceAsStream("../resources/images/oracle_logo1.png"));
@@ -57,6 +58,8 @@ public class PrincipalController implements Initializable {
         controller = this;
         starPrincipal();
         ConnectMySQL();
+        ConnectSQLServer();
+        ConnectOracle();
     }
 
     private void starPrincipal(){
@@ -114,58 +117,6 @@ public class PrincipalController implements Initializable {
             e.printStackTrace();
         }
         treeView.setRoot(manager);
-        /*
-
-        FXConnection connection = new FXConnectionMySQL();
-        connection.setData(MySqlController.TxtUser,MySqlController.TxtPassword);
-        connection.Connect();
-        try {
-            PreparedStatement ps;
-            String sql = "select schema_name from information_schema.schemata;";
-            ResultSet rs;
-            ps = connection.getConnection().prepareStatement(sql);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                if (rs.getString("schema_name").equals("mysql") || rs.getString("schema_name").equals("information_schema") || rs.getString("schema_name").equals("performance_schema")) {
-                    //no se toman en cuenta
-                }
-                else {
-                    System.out.println(rs.getString("schema_name"));
-                    manager.getChildren().add(new TreeItem<>(rs.getString("schema_name")));
-                }
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        /*TreeItem<String> Database1 = new TreeItem<>("Database 1", new ImageView(database));
-        TreeItem<String> Database2 = new TreeItem<>("Database 2",new ImageView(database));
-        TreeItem<String> Database3 = new TreeItem<>("Database 3", new ImageView(database));
-
-        TreeItem<String> Table1 = new TreeItem<>("Table 1", new ImageView(table));
-        TreeItem<String> Table2 = new TreeItem<>("Table 2", new ImageView(table));
-        TreeItem<String> Table3 = new TreeItem<>("Table 3", new ImageView(table));
-
-        TreeItem<String> Field1 = new TreeItem<>("Field 1", new ImageView(field));
-        TreeItem<String> Field2 = new TreeItem<>("Field 2",new ImageView(field));
-        TreeItem<String> Field3 = new TreeItem<>("Field 3",new ImageView(field));
-
-        Database1.getChildren().addAll(Table1,Table2,Table3);
-
-        Database2.getChildren().addAll(Table1,Table2,Table3);
-
-        Database3.getChildren().addAll(Table1,Table2,Table3);
-
-        Table1.getChildren().addAll(Field1,Field2,Field3);
-
-        Table2.getChildren().addAll(Field1,Field2,Field3);
-
-        Table3.getChildren().addAll(Field1,Field2,Field3);
-
-        Principal1.getChildren().addAll(Database1,Database2,Database3);*/
-
-        //treeView.setRoot(manager);
     }
 
     private void ConnectMySQL(){
@@ -185,6 +136,48 @@ public class PrincipalController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        });
+    }
+
+    private void ConnectSQLServer(){
+        toSQLServer.setOnAction(event -> {
+            System.out.println("SQl server presionado");
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                Parent root = (DialogPane) fxmlLoader.load(getClass().getResource("../sqlserver/sqlserver.fxml").openStream());
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("../resources/styles/Stylesheet.css").toExternalForm());
+                SQLServerController sqlServerController = fxmlLoader.getController();
+                sqlServerController.getControllerPrincipal(controller);
+                Stage stage = new Stage();
+                stage.setScene(scene);
+                stage.setResizable(false);
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void ConnectOracle(){
+        toOracle.setOnAction(event -> {
+            System.out.println("Oracle presionado");
+            /*try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                Parent root = (DialogPane) fxmlLoader.load(getClass().getResource("../mysql/mysql.fxml").openStream());
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("../resources/styles/Stylesheet.css").toExternalForm());
+                MySQLController mySQLController = fxmlLoader.getController();
+                mySQLController.getControllerPrincipal(controller);
+                Stage stage = new Stage();
+                stage.setScene(scene);
+                stage.setResizable(false);
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
         });
     }
 }
