@@ -1,0 +1,152 @@
+/*root {
+    -fx-background-color: cornsilk;
+    -fx-padding: 10;
+}*/
+
+.menu .label{
+    -fx-font-family: "Arial Narrow";
+    -fx-font-size: 17px;
+    -fx-text-fill: #afb1b3;
+}
+
+.menu:hover{
+    -fx-background-color: #4b6eaf;
+}
+
+.context-menu {
+    -fx-background-color: #3c3f41;
+    -fx-text-fill: #afb1b3;
+    -fx-pref-width: 300;
+    -fx-border-color: #515151;
+    -fx-effect: null;
+}
+
+#paneleft{
+    -fx-border-color: #515151;
+}
+
+.separator:horizontal .line {
+    -fx-border-color: #515151 transparent transparent transparent;
+}
+
+.separator:vertical .line {
+    -fx-border-color: #515151 transparent transparent transparent;
+}
+
+#sep1{
+    -fx-border-color: #323232 transparent transparent transparent;
+}
+
+#sep2{
+    -fx-border-color: #323232 transparent transparent transparent;
+}
+
+#paneTest{
+    -fx-pref-height: 5;
+}
+
+#PaneButtons{
+    -fx-alignment: left;
+    -fx-text-alignment: left;
+    -fx-pref-width: 100;
+}
+
+.menu-item .label {
+    /*-fx-fill:red;*/
+    -fx-font-family: "Arial Narrow";
+    -fx-font-size: 17px;
+    -fx-text-fill: #afb1b3;
+    /*-fx-stroke:#C8CFD7;*/
+    /*-fx-strok-width:.25;*/
+}
+
+.menu-item:focused .label {
+    -fx-text-fill: #afb1b3;
+}
+.menu-item{
+    /*-fx-border-color: #DDDEE2 transparent #B9C0C8 transparent;*/
+
+    /*-fx-border-width:0.50px;*/
+
+}
+.menu-item:focused {
+/*-fx-background: -fx-accent;*/
+    -fx-background-color: #4b6eaf;
+    /*-fx-text-fill: -fx-selection-bar-text;*/
+}
+
+.tree-view .tree-cell{
+    -fx-background-color:  #3c3f41;
+    -fx-text-fill: #afb1b3;
+    -fx-font-family: "Arial Narrow";
+    -fx-font-size: 17;
+}
+
+#treeView{
+    -fx-border-color: #515151;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color :transparent;
+    -fx-border-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-border-radius :2.0em;
+}
+
+
+.scroll-bar:horizontal .increment-button ,
+.scroll-bar:horizontal .decrement-button {
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 0.0 10.0 0.0;
+
+}
+
+.scroll-bar:vertical{
+    -fx-background-color :transparent;
+}
+
+.scroll-bar:vertical .increment-button ,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color :transparent;
+    -fx-background-radius : 0.0em;
+    -fx-padding :0.0 10.0 0.0 0.0;
+
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow{
+    -fx-shape : " ";
+    -fx-padding :0.15em 0.0;
+}
+
+.scroll-bar:vertical .increment-arrow,
+.scroll-bar:vertical .decrement-arrow{
+    -fx-shape : " ";
+    -fx-padding :0.0 0.15em;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color :derive(black,90.0%);
+    -fx-background-insets : 2.0, 0.0, 0.0;
+    -fx-background-radius : 2.0em;
+}
+
+.scroll-bar:horizontal .thumb:hover,
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color :derive(#4D4C4F,10.0%);
+    -fx-background-insets : 2.0, 0.0, 0.0;
+    -fx-background-radius : 2.0em;
+}
+
+.text-field{
+    -fx-border-color: #505253;
+    -fx-text-fill: #afb1b3;
+}
+
+.password-field{
+    -fx-border-color: #505253;
+    -fx-text-fill: #afb1b3;
+}
