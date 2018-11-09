@@ -1,0 +1,8 @@
+create database project_database;
+use project_database;
+
+create table Roles(
+IdRol int(10) auto_increment not null,
+Rol varchar(50) not null,
+primary key (IdRol)
+);

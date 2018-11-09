@@ -1,0 +1,104 @@
+package com.jhonyrg.dev.parser;
+import scanner.Lexer;
+import scanner.TokenData;
+import java.util.*;
+import java.io.*;
+import java_cup.runtime.*;
+
+        action code
+                {:
+                Hashtable table = new Hashtable();
+                :};
+
+        parser code{:
+                // Connect this parser to a scanner
+                //Lexer s;
+                //Parser(Lexer s){ this.s=s; }
+
+                private Lexer lexer;
+                private File file;
+                public Parser(File file ) {
+                                this();
+                                this.file = file;
+                                try {
+                                        lexer = new Lexer(new FileReader(file));
+                                }
+                                catch ( IOException exception ) {
+                                throw new Error( "Unable to open file \"" + file + "\"" );
+                                }
+                        }
+                        //...
+
+                public void report_error(String message, Object data){
+                        StringBuilder mBuilder = new StringBuilder("- Error");
+
+                        if(data instanceof java_cup.runtime.Symbol){
+                        TokenData tokenData  = ((TokenData) ((java_cup.runtime.Symbol) data).value);
+
+                        if(tokenData != null){
+                        if(tokenData.getLine() >= 0){
+                        mBuilder.append(" in line " + tokenData.getLine());
+
+                        if(tokenData.getFirstChar() >= 0){
+                        mBuilder.append(", column " + tokenData.getFirstChar());
+                        }
+                        }
+
+                        mBuilder.append(": " + message);
+                        System.err.println(mBuilder);
+                        }
+
+                        }
+                        }
+
+                public void report_fatal_error(String message, Object data){
+                        report_error(message, data);
+                        System.exit(1);
+                        }
+        :};
+
+        scan with
+        {:
+        //return lexer.yylex();
+        return lexer.next_token();
+        :};
+
+
+
+        /* define how to connect to the scanner! */
+        /*init with {: s.init(); :};
+        scan with {: return s.next_token(); :};*/
+
+        /*Terminals (Tokens returned by scanner)*/
+        //terminal symbol;
+        terminal keyword, identifier, symbol, CREATE, DATABASE, SEMI;
+
+        /*Non Terminals*/
+        non terminal expr_sql;
+        non terminal expr_create_db_sql, expr_create_db, expr_create_db_keyword;
+        non terminal expr_use_db_sql, expr_keyword_use_db;
+
+        /*Precedence and Associatively of Terminals*/
+
+        /*Grammar rules*/
+        start with expr_sql;
+        expr_sql                ::= expr_sql expr_create_db_sql | expr_create_db_sql | expr_sql expr_use_db_sql | expr_use_db_sql;
+
+        /*1- create database testDB;*/
+        expr_create_db_sql      ::= expr_create_db symbol
+                                {:System.out.println("La BD ha sido creada.");
+                                :};
+        expr_create_db          ::= expr_create_db_keyword identifier
+                                {:System.out.println("Creando BD...");
+                                :};
+        expr_create_db_keyword  ::= keyword keyword
+                                {:System.out.println("Inciando...");
+                                :};
+
+        /*2- use testDB;*/
+        expr_use_db_sql         ::= expr_keyword_use_db symbol
+                                {:System.out.println("Se ha seleccionado la BD.");
+                                :};
+        expr_keyword_use_db     ::= keyword identifier
+                                {:System.out.println("Identificando DB...");
+                                :};

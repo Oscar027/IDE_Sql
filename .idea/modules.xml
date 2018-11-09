@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/IDE_Sql.iml" filepath="$PROJECT_DIR$/IDE_Sql.iml" />
       <module fileurl="file://$PROJECT_DIR$/lexer/lexer.iml" filepath="$PROJECT_DIR$/lexer/lexer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/parser/parser.iml" filepath="$PROJECT_DIR$/parser/parser.iml" />
     </modules>
   </component>
 </project>
