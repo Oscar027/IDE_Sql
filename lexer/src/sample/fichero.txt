@@ -1,0 +1,29 @@
+create database project_database;
+use project_database;
+
+create table Roles(
+IdRol int(10) auto_increment not null,
+Rol varchar(50) not null,
+primary key (IdRol)
+);
+
+create table Users(
+IdUser varchar(25) not null,
+PasswordUser varchar(250) not null,
+Email varchar(100) not null,
+IdRol int(10) not null,
+IdEmployee int(10) not null,
+primary key (IdUser),
+foreign key (IdRol) references Roles (IdRol),
+foreign key (IdEmployee) references Employees (IdEmployee)
+);
+
+insert into Roles (Rol) values ('ninguno');
+
+select * from Roles;
+
+update Users set IdUser='admin', PasswordUser='8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',IdRol=1,IdEmployee=1 where Id = 'admin';
+
+drop database project_database;
+
+delete from Users where Id = 'admin';
