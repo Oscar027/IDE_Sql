@@ -37,7 +37,7 @@ public class MySQLController implements Initializable {
         OK.setOnAction(event -> {
             toConnection.setUser(User.getText());
             toConnection.setPassword(Password.getText());
-            principalController.getDatabase("MySQL",principalController.mysql);
+            principalController.getDatabaseMySQL("MySQL",principalController.mysql);
             OK.getScene().getWindow().hide();
         });
     }

@@ -4,7 +4,7 @@ public class toConnection {
 
     private static String Host;
     private static String Port;
-    private static String Database;
+    private static String Alternative;
     private static String User;
     private static String Password;
     private static String URL;
@@ -25,12 +25,12 @@ public class toConnection {
         Port = port;
     }
 
-    public static String getDatabase() {
-        return Database;
+    public static String getAlternative() {
+        return Alternative;
     }
 
-    public static void setDatabase(String database) {
-        Database = database;
+    public static void setAlternative(String alternative) {
+        Alternative = alternative;
     }
 
     public static String getUser() {

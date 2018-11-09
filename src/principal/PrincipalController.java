@@ -2,6 +2,7 @@ package principal;
 
 import connection.FXConnection;
 import connection.FXConnectionMySQL;
+import connection.FXConnectionSQLServer;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -71,7 +72,7 @@ public class PrincipalController implements Initializable {
         fade.play();
     }
 
-    public void getDatabase(String db, Image image){
+    public void getDatabaseMySQL(String db, Image image){
         TreeItem<String> manager = new TreeItem<>(db, new ImageView(image));
         FXConnection connection = new FXConnectionMySQL();
         connection.setData(toConnection.getUser(),toConnection.getPassword());
@@ -110,6 +111,50 @@ public class PrincipalController implements Initializable {
                     databases.get(i).getChildren().addAll(tables);
                     i++;
                 }
+            }
+            manager.getChildren().addAll(databases);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        treeView.setRoot(manager);
+    }
+
+    public void getDatabaseSQLServer(String db, Image image){
+        TreeItem<String> manager = new TreeItem<>(db, new ImageView(image));
+        FXConnection connection = new FXConnectionSQLServer();
+        connection.setData(toConnection.getUser(),toConnection.getPassword(),toConnection.getAlternative());
+        connection.Connect();
+        try {
+            PreparedStatement ps1,ps2,ps3;
+            String sql = "select name from sys.databases;";
+            ResultSet rs1,rs2,rs3;
+            ps1 = connection.getConnection().prepareStatement(sql);
+            rs1 = ps1.executeQuery();
+            int i = 0;
+            while (rs1.next()) {
+                    databases.add(new TreeItem<>(rs1.getString("name"), new ImageView(database)));
+                    sql = "select name from " + rs1.getString("name") + ".sys.tables;";
+                    ps2 = connection.getConnection().prepareStatement(sql);
+                    rs2 = ps2.executeQuery();
+                    tables = new ArrayList<>();
+                    int j = 0;
+                    while (rs2.next()) {
+                        tables.add(new TreeItem<>(rs2.getString("name"), new ImageView(table)));
+                        sql = "select COLUMN_NAME from " + rs1.getString("name") + ".INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '" + rs2.getString("name") + "';";
+                        //System.out.println("show fields from " + rs1.getString("schema_name") + "." + rs2.getString("tables_in_" + rs1.getString("schema_name")) + ";");
+                        ps3 = connection.getConnection().prepareStatement(sql);
+                        rs3 = ps3.executeQuery();
+                        fields = new ArrayList<>();
+                        while (rs3.next()) {
+                            fields.add(new TreeItem<>(rs3.getString("COLUMN_NAME"), new ImageView(field)));
+                        }
+                        tables.get(j).getChildren().addAll(fields);
+                        j++;
+                    }
+                    databases.get(i).getChildren().addAll(tables);
+                    i++;
+
             }
             manager.getChildren().addAll(databases);
         }
