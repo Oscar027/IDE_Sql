@@ -2,6 +2,7 @@ package principal;
 
 import connection.FXConnection;
 import connection.FXConnectionMySQL;
+import connection.FXConnectionOracle;
 import connection.FXConnectionSQLServer;
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
@@ -17,6 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import mysql.MySQLController;
+import oracle.OracleController;
 import resources.classes.toConnection;
 import sqlserver.SQLServerController;
 
@@ -47,12 +49,16 @@ public class PrincipalController implements Initializable {
     private Image database = new Image(getClass().getResourceAsStream("../resources/images/database_small.png"));
     private Image table = new Image(getClass().getResourceAsStream("../resources/images/table.png"));
     private Image field = new Image(getClass().getResourceAsStream("../resources/images/field.png"));
+    private Image close = new Image(getClass().getResourceAsStream("../resources/images/disconnect.png"));
 
     private PrincipalController controller;
 
     private List<TreeItem<String>> databases = new ArrayList<>();
     private List<TreeItem<String>> tables;
     private List<TreeItem<String>> fields;
+
+    private MenuItem menuItem = new MenuItem("Disconnect",new ImageView(close));
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -73,7 +79,7 @@ public class PrincipalController implements Initializable {
     }
 
     public void getDatabaseMySQL(String db, Image image){
-        TreeItem<String> manager = new TreeItem<>(db, new ImageView(image));
+        TreeItem manager = new TreeItem<>(db, new ImageView(image));
         FXConnection connection = new FXConnectionMySQL();
         connection.setData(toConnection.getUser(),toConnection.getPassword());
         connection.Connect();
@@ -133,33 +139,46 @@ public class PrincipalController implements Initializable {
             rs1 = ps1.executeQuery();
             int i = 0;
             while (rs1.next()) {
-                    databases.add(new TreeItem<>(rs1.getString("name"), new ImageView(database)));
-                    sql = "select name from " + rs1.getString("name") + ".sys.tables;";
-                    ps2 = connection.getConnection().prepareStatement(sql);
-                    rs2 = ps2.executeQuery();
-                    tables = new ArrayList<>();
-                    int j = 0;
-                    while (rs2.next()) {
-                        tables.add(new TreeItem<>(rs2.getString("name"), new ImageView(table)));
-                        sql = "select COLUMN_NAME from " + rs1.getString("name") + ".INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '" + rs2.getString("name") + "';";
-                        //System.out.println("show fields from " + rs1.getString("schema_name") + "." + rs2.getString("tables_in_" + rs1.getString("schema_name")) + ";");
-                        ps3 = connection.getConnection().prepareStatement(sql);
-                        rs3 = ps3.executeQuery();
-                        fields = new ArrayList<>();
-                        while (rs3.next()) {
-                            fields.add(new TreeItem<>(rs3.getString("COLUMN_NAME"), new ImageView(field)));
-                        }
-                        tables.get(j).getChildren().addAll(fields);
-                        j++;
+                databases.add(new TreeItem<>(rs1.getString("name"), new ImageView(database)));
+                sql = "select name from " + rs1.getString("name") + ".sys.tables;";
+                ps2 = connection.getConnection().prepareStatement(sql);
+                rs2 = ps2.executeQuery();
+                tables = new ArrayList<>();
+                int j = 0;
+                while (rs2.next()) {
+                    tables.add(new TreeItem<>(rs2.getString("name"), new ImageView(table)));
+                    sql = "select COLUMN_NAME from " + rs1.getString("name") + ".INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = '" + rs2.getString("name") + "';";
+                    //System.out.println("show fields from " + rs1.getString("schema_name") + "." + rs2.getString("tables_in_" + rs1.getString("schema_name")) + ";");
+                    ps3 = connection.getConnection().prepareStatement(sql);
+                    rs3 = ps3.executeQuery();
+                    fields = new ArrayList<>();
+                    while (rs3.next()) {
+                        fields.add(new TreeItem<>(rs3.getString("COLUMN_NAME"), new ImageView(field)));
                     }
-                    databases.get(i).getChildren().addAll(tables);
-                    i++;
-
+                    tables.get(j).getChildren().addAll(fields);
+                    j++;
+                }
+                databases.get(i).getChildren().addAll(tables);
+                i++;
             }
             manager.getChildren().addAll(databases);
         }
         catch (SQLException e) {
             e.printStackTrace();
+        }
+        treeView.setRoot(manager);
+    }
+
+    public void getDatabaseOracle(String db, Image image){
+        TreeItem<String> manager = new TreeItem<>(db, new ImageView(image));
+        FXConnection connection = new FXConnectionOracle();
+        connection.setData(toConnection.getUser(),toConnection.getPassword());
+        connection.Connect();
+        if (connection.getConnection() != null){
+            System.out.println("Connected Succesfully");
+        }
+        else{
+            System.out.println("No Connected");
         }
         treeView.setRoot(manager);
     }
@@ -208,13 +227,13 @@ public class PrincipalController implements Initializable {
     private void ConnectOracle(){
         toOracle.setOnAction(event -> {
             System.out.println("Oracle presionado");
-            /*try {
+            try {
                 FXMLLoader fxmlLoader = new FXMLLoader();
-                Parent root = (DialogPane) fxmlLoader.load(getClass().getResource("../mysql/mysql.fxml").openStream());
+                Parent root = (DialogPane) fxmlLoader.load(getClass().getResource("../oracle/oracle.fxml").openStream());
                 Scene scene = new Scene(root);
                 scene.getStylesheets().add(getClass().getResource("../resources/styles/Stylesheet.css").toExternalForm());
-                MySQLController mySQLController = fxmlLoader.getController();
-                mySQLController.getControllerPrincipal(controller);
+                OracleController oracleController = fxmlLoader.getController();
+                oracleController.getControllerPrincipal(controller);
                 Stage stage = new Stage();
                 stage.setScene(scene);
                 stage.setResizable(false);
@@ -222,7 +241,7 @@ public class PrincipalController implements Initializable {
                 stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
-            }*/
+            }
         });
     }
 }

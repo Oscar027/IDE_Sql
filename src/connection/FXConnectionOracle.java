@@ -36,7 +36,8 @@ public class FXConnectionOracle implements FXConnection{
         try{
             Class.forName("oracle.jdbc.OracleDriver").getDeclaredConstructor().newInstance();
             this.connection = DriverManager.getConnection("jdbc:oracle:thin:@" + toConnection.getHost() + ":" + toConnection.getPort() + ":" + toConnection.getSID(),Username,Password);
-        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+        }
+        catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException | ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
@@ -48,6 +49,11 @@ public class FXConnectionOracle implements FXConnection{
 
     @Override
     public void Disconnect() {
-
+        try {
+            this.connection.close();
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
