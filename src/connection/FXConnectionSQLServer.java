@@ -1,5 +1,7 @@
 package connection;
 
+import resources.classes.toConnection;
+
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -32,10 +34,10 @@ public class FXConnectionSQLServer implements FXConnection{
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver").getDeclaredConstructor().newInstance();
             System.out.println(TypeConnection);
             if (TypeConnection.equals("Windows Authentication")){
-                connection = DriverManager.getConnection("jdbc:sqlserver://localhost;integratedSecurity=true;");
+                connection = DriverManager.getConnection("jdbc:sqlserver://" + toConnection.getHost() + ";integratedSecurity=true;");
             }
             else if (TypeConnection.equals("SQL Server Authentication")){
-                connection = DriverManager.getConnection("jdbc:sqlserver://localhost;",  Username ,Password);
+                connection = DriverManager.getConnection("jdbc:sqlserver://" + toConnection.getHost() + ";",  Username ,Password);
             }
         }
         catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException | SQLException e) {

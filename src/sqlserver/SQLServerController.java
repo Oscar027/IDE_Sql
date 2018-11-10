@@ -23,21 +23,22 @@ public class SQLServerController implements Initializable {
     Button OK;
 
     @FXML
-    TextField User, URL;
+    TextField User, URL, Host;
 
     @FXML
     PasswordField Password;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Host.setText("localhost");
         CmbTypeConnection.getItems().addAll("Windows Authentication","SQL Server Authentication");
         User.setEditable(false);
         Password.setEditable(false);
         URL.setText("jdbc:sqlserver://localhost;");
         CmbTypeConnection.setOnAction(event ->{
             if (CmbTypeConnection.getSelectionModel().getSelectedItem().toString().equals("SQL Server Authentication")){
-                User.setEditable(false);
-                Password.setEditable(false);
+                User.setEditable(true);
+                Password.setEditable(true);
                 User.requestFocus();
             }
         });
@@ -46,6 +47,7 @@ public class SQLServerController implements Initializable {
             toConnection.setAlternative(Selection);
             toConnection.setUser(User.getText());
             toConnection.setPassword(Password.getText());
+            toConnection.setHost(Host.getText());
             principalController.getDatabaseSQLServer("SQL Server",principalController.sqlserver);
             OK.getScene().getWindow().hide();
         });

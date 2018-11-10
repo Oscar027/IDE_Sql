@@ -8,6 +8,15 @@ public class toConnection {
     private static String User;
     private static String Password;
     private static String URL;
+    private static String SID;
+
+    public static String getSID() {
+        return SID;
+    }
+
+    public static void setSID(String SID) {
+        toConnection.SID = SID;
+    }
 
     public static String getHost() {
         return Host;
