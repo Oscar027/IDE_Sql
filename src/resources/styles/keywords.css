@@ -1,0 +1,35 @@
+/*palabra clave*/
+.keyword {
+    -fx-fill: blue;
+}
+/* Texto en general  */
+.text {
+    -fx-font-family: 'Helvetica', Arial, sans-serif;
+    -fx-font-size: 15px;
+}
+/* punto y coma*/
+.punto_coma {
+   -fx-font-weight: bold;
+   -fx-fill: steelblue;
+}
+/* comentarios */
+.comentarios {
+    -fx-font-weight: bold;
+	-fx-fill: #FFFFFF;
+}
+/* area del editor */
+#codeArea{
+    -fx-background-color: LightGrey;
+}
+/*sombreado de linea actual*/
+.paragraph-box:has-caret {
+    -fx-background-color: lightblue;
+}
+/* numero de linea*/
+.lineno{
+   -fx-font-size: 15px;
+   -fx-background-color: gray;
+   -fx-text-fill: white;
+ }
+
+

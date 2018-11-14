@@ -11,11 +11,12 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
-<BorderPane fx:id="BorderPane_principal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="827.0" prefWidth="1301.0" style="-fx-background-color: #3c3f41;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="principal.PrincipalController">
+<BorderPane fx:id="BorderPane_principal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="827.0" prefWidth="1301.0" style="-fx-background-color: #3c3f41;" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="principal.PrincipalController">
    <top>
       <BorderPane prefHeight="30.0" prefWidth="1301.0" BorderPane.alignment="CENTER">
          <top>
@@ -280,4 +281,7 @@
    <right>
       <AnchorPane fx:id="paneleft" prefHeight="190.0" prefWidth="30.0" stylesheets="@../resources/styles/Stylesheet.css" BorderPane.alignment="CENTER" />
    </right>
+   <center>
+      <StackPane fx:id="stackEditor" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+   </center>
 </BorderPane>

@@ -5,6 +5,7 @@ import connection.FXConnectionMySQL;
 import connection.FXConnectionOracle;
 import connection.FXConnectionSQLServer;
 import javafx.animation.FadeTransition;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -14,11 +15,17 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import mysql.MySQLController;
 import oracle.OracleController;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.reactfx.Subscription;
 import resources.classes.toConnection;
 import sqlserver.SQLServerController;
 
@@ -27,10 +34,11 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PrincipalController implements Initializable {
 
@@ -42,6 +50,35 @@ public class PrincipalController implements Initializable {
 
     @FXML
     private MenuItem toMySQL, toSQLServer, toOracle;
+
+
+    //Resaltado de Sintaxis
+
+    //Arreglo de prueba con keywords quemadas
+    private static final String[] KEYWORDS_PRUEBA = new String[] {
+            "select", "from" ,"where", "delete","insert","and", "create",
+            "use", "database", "table", "not","null","int","auto_increment"
+
+    };
+
+    private static final String MODELO_KEYWORD = "\\b(" + String.join("|",KEYWORDS_PRUEBA) + ")\\b";
+    private static final String MODELO_PUNTO_COMA = "\\;";
+    private static final String MODELO_COMENTARIO = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
+
+
+    private static final Pattern MODELO = Pattern.compile(
+            "(?<KEYWORD>" + MODELO_KEYWORD + ")"
+                    + "|(?<PUNTOCOMA>" + MODELO_PUNTO_COMA + ")"
+                    + "|(?<COMENTARIO>" + MODELO_COMENTARIO + ")"
+    );
+
+    private CodeArea codeArea;
+    private ExecutorService executor;
+
+    @FXML
+    private StackPane stackEditor;
+
+    //////////////////////
 
     public Image mysql = new Image(getClass().getResourceAsStream("../resources/images/mysql_color1.png"));
     public Image oracle = new Image(getClass().getResourceAsStream("../resources/images/oracle_logo1.png"));
@@ -67,6 +104,7 @@ public class PrincipalController implements Initializable {
         ConnectMySQL();
         ConnectSQLServer();
         ConnectOracle();
+        editorSQL();
     }
 
     private void starPrincipal(){
@@ -243,5 +281,71 @@ public class PrincipalController implements Initializable {
                 e.printStackTrace();
             }
         });
+    }
+
+    ////////////////Resaltado de Sintaxis////////////////////////
+
+    private void editorSQL(){
+
+        executor = Executors.newSingleThreadExecutor();
+        codeArea = new CodeArea();
+        codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+        codeArea.setId("codeArea");
+
+        Subscription cleanupWhenDone = codeArea.multiPlainChanges()
+                .successionEnds(java.time.Duration.ofMillis(500))
+                .supplyTask(this::computeHighlightingAsync)
+                .awaitLatest(codeArea.multiPlainChanges())
+                .filterMap(t -> {
+                    if(t.isSuccess()) {
+                        return Optional.of(t.get());
+                    } else {
+                        t.getFailure().printStackTrace();
+                        return Optional.empty();
+                    }
+                })
+                .subscribe(this::applyHighlighting);
+
+        stackEditor.getStylesheets().add(getClass().getResource("../resources/styles/keywords.css").toExternalForm());
+        stackEditor.getChildren().addAll(codeArea);
+
+    }
+
+    //Calculando el resaltado asincrono (NO SE SI ME EXPLICO :v )
+    private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
+        String text = codeArea.getText();
+        Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
+            @Override
+            protected StyleSpans<Collection<String>> call() throws Exception {
+                return computeHighlighting(text);
+            }
+        };
+        executor.execute(task);
+        return task;
+
+    }
+
+    //aplicando el resaltado
+    private void applyHighlighting(StyleSpans<Collection<String>> highlighting) {
+       codeArea.setStyleSpans(0, highlighting);
+
+    }
+
+    private static StyleSpans<Collection<String>> computeHighlighting(String text) {
+
+        Matcher matcher = MODELO.matcher(text);
+        int lastKwEnd = 0;
+        StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
+        while(matcher.find()) {
+            String styleClass = matcher.group("KEYWORD") != null ? "keyword" :
+                                   matcher.group("PUNTOCOMA") != null ? "punto_coma" :
+                                        matcher.group("COMENTARIO") != null ? "comentarios" :
+                                                null; /* no pasa */ assert styleClass != null;
+            spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
+            spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
+            lastKwEnd = matcher.end();
+        }
+        spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
+        return spansBuilder.create();
     }
 }
