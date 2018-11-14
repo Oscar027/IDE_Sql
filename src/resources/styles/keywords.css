@@ -1,35 +1,36 @@
 /*palabra clave*/
 .keyword {
-    -fx-fill: blue;
+    -fx-font-weight: bold;
+    -fx-fill: #cc7832;
 }
 /* Texto en general  */
 .text {
     -fx-font-family: 'Helvetica', Arial, sans-serif;
-    -fx-font-size: 15px;
+    -fx-font-size: 17px;
 }
 /* punto y coma*/
 .punto_coma {
    -fx-font-weight: bold;
-   -fx-fill: steelblue;
+   -fx-fill: #cc7832;
 }
 /* comentarios */
 .comentarios {
     -fx-font-weight: bold;
-	-fx-fill: #FFFFFF;
+	-fx-fill: #688554;
 }
 /* area del editor */
 #codeArea{
-    -fx-background-color: LightGrey;
+    -fx-background-color: #2b2b2b;
 }
 /*sombreado de linea actual*/
-.paragraph-box:has-caret {
+/*.paragraph-box:has-caret {
     -fx-background-color: lightblue;
-}
+}*/
 /* numero de linea*/
 .lineno{
-   -fx-font-size: 15px;
-   -fx-background-color: gray;
-   -fx-text-fill: white;
+   -fx-font-size: 14px;
+   -fx-background-color: #313335;
+   -fx-text-fill: #afb1b3;
  }
 
 
