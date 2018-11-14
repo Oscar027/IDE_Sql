@@ -65,7 +65,6 @@ public class PrincipalController implements Initializable {
     private static final String MODELO_PUNTO_COMA = "\\;";
     private static final String MODELO_COMENTARIO = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
 
-
     private static final Pattern MODELO = Pattern.compile(
             "(?<KEYWORD>" + MODELO_KEYWORD + ")"
                     + "|(?<PUNTOCOMA>" + MODELO_PUNTO_COMA + ")"
