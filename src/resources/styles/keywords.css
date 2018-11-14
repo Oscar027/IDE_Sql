@@ -1,12 +1,14 @@
-/*palabra clave*/
-.keyword {
-    -fx-font-weight: bold;
-    -fx-fill: #cc7832;
-}
 /* Texto en general  */
 .text {
     -fx-font-family: 'Helvetica', Arial, sans-serif;
     -fx-font-size: 17px;
+    -fx-text-fill: #afb1b3;
+    -fx-fill: #afb1b3;
+}
+/*palabra clave*/
+.keyword {
+    -fx-font-weight: bold;
+    -fx-fill: #cc7832;
 }
 /* punto y coma*/
 .punto_coma {
@@ -28,7 +30,7 @@
 }*/
 /* numero de linea*/
 .lineno{
-   -fx-font-size: 14px;
+   -fx-font-size: 12px;
    -fx-background-color: #313335;
    -fx-text-fill: #afb1b3;
  }
