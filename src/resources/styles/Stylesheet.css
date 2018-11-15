@@ -4,8 +4,8 @@
 }*/
 
 .menu .label{
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17px;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
     -fx-text-fill: #afb1b3;
 }
 
@@ -53,8 +53,8 @@
 
 .menu-item .label {
     /*-fx-fill:red;*/
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17px;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
     -fx-text-fill: #afb1b3;
     /*-fx-stroke:#C8CFD7;*/
     /*-fx-strok-width:.25;*/
@@ -78,8 +78,8 @@
 .tree-view .tree-cell{
     -fx-background-color:  #3c3f41;
     -fx-text-fill: #afb1b3;
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
 }
 
 #treeView{
@@ -154,16 +154,16 @@
 .combo-box{
     -fx-background-color:  #3c3f41;
     -fx-border-color: #505253;
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
     -fx-text-fill: #afb1b3;
     -fx-prompt-text-fill: #afb1b3;
 }
 
 .combo-box .list-cell{
     -fx-background-color:  #3c3f41;
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
     -fx-text-fill: #afb1b3;
     -fx-prompt-text-fill: #afb1b3;
 }
@@ -178,15 +178,15 @@
 .combo-box-popup .list-view .list-cell{
     -fx-text-fill: #afb1b3;
     -fx-background-color: #3c3f41;
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
     -fx-prompt-text-fill: #afb1b3;
 }
 
 .combo-box-popup .list-view .list-cell:filled:selected, .combo-box-popup .list-view .list-cell:filled:selected:hover{
     -fx-text-fill: #afb1b3;
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
     -fx-prompt-text-fill: #afb1b3;
 }
 
@@ -197,7 +197,7 @@
 .combo-box-base{
     -fx-text-fill: #afb1b3;
     -fx-background-color: #3c3f41;
-    -fx-font-family: "Arial Narrow";
-    -fx-font-size: 17;
+    -fx-font-family: "Gidole";
+    -fx-font-size: 11pt;
     -fx-prompt-text-fill: #afb1b3;
 }
