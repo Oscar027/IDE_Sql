@@ -5,100 +5,141 @@ import java.util.*;
 import java.io.*;
 import java_cup.runtime.*;
 
-        action code
-                {:
-                Hashtable table = new Hashtable();
-                :};
+    action code{:
+        Hashtable table = new Hashtable();
+    :};
 
-        parser code{:
-                // Connect this parser to a scanner
-                //Lexer s;
-                //Parser(Lexer s){ this.s=s; }
+    parser code{:
+    /********************************************/
+    /**Interfaz*/
+    public interface ListenerParser {
+        void onParserResult(TokenData token);
+    }
 
-                private Lexer lexer;
-                private File file;
-                public Parser(File file ) {
-                                this();
-                                this.file = file;
-                                try {
-                                        lexer = new Lexer(new FileReader(file));
-                                }
-                                catch ( IOException exception ) {
-                                throw new Error( "Unable to open file \"" + file + "\"" );
-                                }
-                        }
-                        //...
+    ListenerParser listenerParser;
+    private Lexer lexer;
 
-                public void report_error(String message, Object data){
-                        StringBuilder mBuilder = new StringBuilder("- Error");
+    /**Constructores*/
+    public Parser(File file ) {
+        this();
+        this.listenerParser = null;
 
-                        if(data instanceof java_cup.runtime.Symbol){
-                        TokenData tokenData  = ((TokenData) ((java_cup.runtime.Symbol) data).value);
+        try {
+            lexer = new Lexer(new FileReader(file));
+        }
+        catch ( IOException exception ) {
+            throw new Error( "Unable to open file \"" + file + "\"" );
+        }
+    }
 
-                        if(tokenData != null){
-                        if(tokenData.getLine() >= 0){
-                        mBuilder.append(" in line " + tokenData.getLine());
+    public Parser(String in ) {
+        this();
+        this.listenerParser = null;
 
-                        if(tokenData.getFirstChar() >= 0){
+        try {
+            lexer = new Lexer(new StringReader(in));
+        }
+        catch ( Exception exception ) {
+            throw new Error( "PARSER Unable to processing input \"" + in + "\"" );
+        }
+    }
+
+    /**Metodo para setear el listener en caso de ser necesario*/
+    public void setListenerParser(ListenerParser listenerParser){
+        this.listenerParser =listenerParser;
+    }
+
+    /**Metodo para obtener el valor del Objeto retornado*/
+    void getValueObject(Object result){
+        TokenData tokenData;
+        if(result instanceof java_cup.runtime.Symbol){
+            System.out.println("Result type symbol");
+            tokenData  = ((TokenData) ((java_cup.runtime.Symbol) result).value);
+            this.listenerParser.onParserResult(tokenData);
+        }else if(result instanceof TokenData){
+            System.out.println("Result type Token");
+            tokenData = (TokenData) result;
+            this.listenerParser.onParserResult(tokenData);
+        }else{
+            System.out.println("Result type unknown");
+            tokenData = null;
+            this.listenerParser.onParserResult(tokenData);
+        }
+    }
+
+    /** Metodo para indicar al lexer que lea de nuevo, sin crear otra insntacia .
+     * El flujo de entrada anterior puede recuperarse con <code>yypopStream</code>
+     */
+    public void continueRead(String in){
+        this.lexer.yypushStream(new StringReader(in));
+    }
+
+    /**Metodos para mostrar los errores*/
+    public void report_error(String message, Object data){
+        StringBuilder mBuilder = new StringBuilder("- Error");
+
+        if(data instanceof java_cup.runtime.Symbol){
+            TokenData tokenData  = ((TokenData) ((java_cup.runtime.Symbol) data).value);
+
+            if(tokenData != null){
+                if(tokenData.getLine() >= 0){
+                    mBuilder.append(" in line " + tokenData.getLine());
+
+                    if(tokenData.getFirstChar() >= 0){
                         mBuilder.append(", column " + tokenData.getFirstChar());
-                        }
-                        }
+                    }
+                }
 
-                        mBuilder.append(": " + message);
-                        System.err.println(mBuilder);
-                        }
+                mBuilder.append(": " + message);
+                System.err.println(mBuilder);
+            }
+        }
+    }
 
-                        }
-                        }
+    public void report_fatal_error(String message, Object data){
+        report_error(message, data);
+        //Finalizar la ejecución
+        //System.exit(1);
+    }
+    /********************************************/
+    :};
 
-                public void report_fatal_error(String message, Object data){
-                        report_error(message, data);
-                        System.exit(1);
-                        }
-        :};
-
-        scan with
-        {:
-        //return lexer.yylex();
+    scan with{:
         return lexer.next_token();
-        :};
+    :};
 
+    /*Terminals (Tokens returned by scanner)*/
+    //terminal symbol;
+    terminal keyword, identifier, symbol, CREATE, DATABASE, SEMI;
 
+    /*Non Terminals*/
+    non terminal expr_sql;
+    non terminal expr_create_db_sql, expr_create_db, expr_create_db_keyword;
+    non terminal expr_use_db_sql, expr_keyword_use_db;
 
-        /* define how to connect to the scanner! */
-        /*init with {: s.init(); :};
-        scan with {: return s.next_token(); :};*/
+    /*Precedence and Associatively of Terminals*/
 
-        /*Terminals (Tokens returned by scanner)*/
-        //terminal symbol;
-        terminal keyword, identifier, symbol, CREATE, DATABASE, SEMI;
+    /*Grammar rules*/
+    start with expr_sql;
+    expr_sql                ::= expr_sql expr_create_db_sql | expr_create_db_sql | expr_sql expr_use_db_sql | expr_use_db_sql;
 
-        /*Non Terminals*/
-        non terminal expr_sql;
-        non terminal expr_create_db_sql, expr_create_db, expr_create_db_keyword;
-        non terminal expr_use_db_sql, expr_keyword_use_db;
+    /*1- create database testDB;*/
+    expr_create_db_sql      ::= expr_create_db symbol
+                            {:System.out.println("La BD ha sido creada.");
+                            :};
+    expr_create_db          ::= expr_create_db_keyword identifier
+                            {:System.out.println("Creando BD...");
+                            :};
+    expr_create_db_keyword  ::= keyword keyword
+                            {:System.out.println("Inciando...");
+                            :};
 
-        /*Precedence and Associatively of Terminals*/
-
-        /*Grammar rules*/
-        start with expr_sql;
-        expr_sql                ::= expr_sql expr_create_db_sql | expr_create_db_sql | expr_sql expr_use_db_sql | expr_use_db_sql;
-
-        /*1- create database testDB;*/
-        expr_create_db_sql      ::= expr_create_db symbol
-                                {:System.out.println("La BD ha sido creada.");
-                                :};
-        expr_create_db          ::= expr_create_db_keyword identifier
-                                {:System.out.println("Creando BD...");
-                                :};
-        expr_create_db_keyword  ::= keyword keyword
-                                {:System.out.println("Inciando...");
-                                :};
-
-        /*2- use testDB;*/
-        expr_use_db_sql         ::= expr_keyword_use_db symbol
-                                {:System.out.println("Se ha seleccionado la BD.");
-                                :};
-        expr_keyword_use_db     ::= keyword identifier
-                                {:System.out.println("Identificando DB...");
-                                :};
+    /*2- use testDB;*/
+    expr_use_db_sql         ::= expr_keyword_use_db symbol
+                            {:System.out.println("Se ha seleccionado la BD.");
+                            :};
+    expr_keyword_use_db  ::= keyword:kw identifier
+                            {:
+                            getValueObject(kw);
+                            System.out.println("Identificando DB...");
+                            :};

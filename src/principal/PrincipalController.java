@@ -1,5 +1,6 @@
 package principal;
 
+import com.jhonyrg.dev.parser.Parser;
 import connection.FXConnection;
 import connection.FXConnectionMySQL;
 import connection.FXConnectionOracle;
@@ -37,11 +38,17 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PrincipalController implements Initializable {
+public class PrincipalController implements Initializable, Parser.ListenerParser {
+    /**Declaraciones*/
+    //Instancia del Parser
+    private Parser parser;
 
+    //Controles
     @FXML
     private BorderPane BorderPane_principal;
 
@@ -50,6 +57,9 @@ public class PrincipalController implements Initializable {
 
     @FXML
     private MenuItem toMySQL, toSQLServer, toOracle;
+
+    @FXML
+    private ImageView imgvRun;
 
 
     //Resaltado de Sintaxis
@@ -101,10 +111,12 @@ public class PrincipalController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         controller = this;
         starPrincipal();
+        editorSQL();
+        this.init();
         ConnectMySQL();
         ConnectSQLServer();
         ConnectOracle();
-        editorSQL();
+
     }
 
     private void starPrincipal(){
@@ -114,6 +126,22 @@ public class PrincipalController implements Initializable {
         fade.setToValue(1);
         fade.setNode(BorderPane_principal);
         fade.play();
+    }
+
+    /**Funcion para inicializar los eventos de los controles y listener*/
+    private void init(){
+        //Setea el evento clic del mouse al "boton" Run
+        this.imgvRun.setOnMouseClicked(event -> {
+            if(codeArea != null){
+                //System.out.println("Click");
+                if(!codeArea.getText().isEmpty())
+                    setSourceParser(codeArea.getText());
+            }
+        });
+
+        /**Inicializando analizador*/
+        this.parser = new Parser("create");
+        this.parser.setListenerParser(this);
     }
 
     public void getDatabaseMySQL(String db, Image image){
@@ -347,5 +375,27 @@ public class PrincipalController implements Initializable {
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
         return spansBuilder.create();
+    }
+
+    /**Funcion para setear el texto de entrada al parser y ejecutarlo*/
+    private void setSourceParser(String sqlText){
+        try {
+            this.parser.continueRead(sqlText);
+            this.parser.parse();
+        } catch (Exception ex) {
+            System.err.println(ex.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage());
+        }
+    }
+
+    /**Configuracion del listener
+     * Metodo callback que se ejecuta cada vez que el Parser devuelva un RESULT*/
+    @Override
+    public void onParserResult(scanner.TokenData token) {
+        if(token != null){
+            System.out.println("Escuchando... VALUE");
+        }else{
+            System.out.println("Escuchando... NULL");
+        }
     }
 }

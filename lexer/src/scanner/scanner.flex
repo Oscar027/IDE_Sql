@@ -24,22 +24,11 @@ White = [\ \t\r\n]+ | \r|\n|\r\n
 CREATE = "create" | "Create" | "CREATE"
 DATABASE = "database" | "Database" | "DATABASE"
 %{
-    /*public String lexeme;
-
-    public static void main(String args[]) throws Exception {
-    		InputStream is = new FileInputStream(args[0]);
-    		Lexer lexer = new Lexer(is);
-
-    		Symbol token = null;
-    		do {
-    			token = lexer.next_token();
-    			System.out.println(token == null ? "EOF" : token.toString());
-    		} while (token != null);
-    	}*/
-    public Symbol token( int tokenType ) {
-        System.err.println("Obtain token " + tokenType + " \"" + yytext() + "\"" );
-        return new Symbol( tokenType, new TokenData(yyline+1, yycolumn+1, yycolumn+yylength(), yytext()));
-    }
+  /**Metodo para retornar el objeto Symbol con la información del token*/
+  public Symbol token( int tokenType ) {
+      System.err.println("Obtain token " + tokenType + " \"" + yytext() + "\"" );
+      return new Symbol( tokenType, new TokenData(yyline+1, yycolumn+1, yycolumn+yylength(), yytext()));
+  }
 %}
 
 %%

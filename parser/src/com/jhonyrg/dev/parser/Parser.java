@@ -111,65 +111,115 @@ public class Parser extends java_cup.runtime.lr_parser {
     throws java.lang.Exception
     {
 
-        //return lexer.yylex();
         return lexer.next_token();
-        
+    
     }
 
 
-                // Connect this parser to a scanner
-                //Lexer s;
-                //Parser(Lexer s){ this.s=s; }
+    /********************************************/
+    /**Interfaz*/
+    public interface ListenerParser {
+        void onParserResult(TokenData token);
+    }
 
-                private Lexer lexer;
-                private File file;
-                public Parser(File file ) {
-                                this();
-                                this.file = file;
-                                try {
-                                        lexer = new Lexer(new FileReader(file));
-                                }
-                                catch ( IOException exception ) {
-                                throw new Error( "Unable to open file \"" + file + "\"" );
-                                }
-                        }
-                        //...
+    ListenerParser listenerParser;
+    private Lexer lexer;
 
-                public void report_error(String message, Object data){
-                        StringBuilder mBuilder = new StringBuilder("- Error");
+    /**Constructores*/
+    public Parser(File file ) {
+        this();
+        this.listenerParser = null;
 
-                        if(data instanceof java_cup.runtime.Symbol){
-                        TokenData tokenData  = ((TokenData) ((java_cup.runtime.Symbol) data).value);
+        try {
+            lexer = new Lexer(new FileReader(file));
+        }
+        catch ( IOException exception ) {
+            throw new Error( "Unable to open file \"" + file + "\"" );
+        }
+    }
 
-                        if(tokenData != null){
-                        if(tokenData.getLine() >= 0){
-                        mBuilder.append(" in line " + tokenData.getLine());
+    public Parser(String in ) {
+        this();
+        this.listenerParser = null;
 
-                        if(tokenData.getFirstChar() >= 0){
+        try {
+            lexer = new Lexer(new StringReader(in));
+        }
+        catch ( Exception exception ) {
+            throw new Error( "PARSER Unable to processing input \"" + in + "\"" );
+        }
+    }
+
+
+
+    /**Metodo para setear el listener en caso de ser necesario*/
+    public void setListenerParser(ListenerParser listenerParser){
+        this.listenerParser =listenerParser;
+    }
+
+    /**Metodo para obtener el valor del Objeto retornado*/
+    void getValueObject(Object result){
+        TokenData tokenData;
+        if(result instanceof java_cup.runtime.Symbol){
+            System.out.println("Result type symbol");
+            tokenData  = ((TokenData) ((java_cup.runtime.Symbol) result).value);
+            this.listenerParser.onParserResult(tokenData);
+        }else if(result instanceof TokenData){
+            System.out.println("Result type Token");
+            tokenData = (TokenData) result;
+            this.listenerParser.onParserResult(tokenData);
+        }else{
+            System.out.println("Result type unknown");
+            tokenData = null;
+            this.listenerParser.onParserResult(tokenData);
+        }
+    }
+
+    /** Metodo para indicar al lexer que lea de nuevo, sin crear otra instancia .
+     * El flujo de entrada anterior puede almacenarce con <code>yypushStream</code>
+     * y puede recuperarse con <code>yypopStream</code>
+     */
+    public void continueRead(String in){
+        this.lexer.yyreset(new StringReader(in));
+    }
+
+    /**Metodos para manejar errores*/
+    public void report_error(String message, Object data){
+        StringBuilder mBuilder = new StringBuilder("- Error");
+
+        if(data instanceof java_cup.runtime.Symbol){
+            TokenData tokenData  = ((TokenData) ((java_cup.runtime.Symbol) data).value);
+
+            if(tokenData != null){
+                if(tokenData.getLine() >= 0){
+                    mBuilder.append(" in line " + tokenData.getLine());
+
+                    if(tokenData.getFirstChar() >= 0){
                         mBuilder.append(", column " + tokenData.getFirstChar());
-                        }
-                        }
+                    }
+                }
 
-                        mBuilder.append(": " + message);
-                        System.err.println(mBuilder);
-                        }
+                mBuilder.append(": " + message);
+                System.err.println(mBuilder);
+            }
+        }
+    }
 
-                        }
-                        }
-
-                public void report_fatal_error(String message, Object data){
-                        report_error(message, data);
-                        System.exit(1);
-                        }
-        
+    public void report_fatal_error(String message, Object data){
+        report_error(message, data);
+        //Finalizar la ejecución
+        //System.exit(1);
+    }
+    /********************************************/
+    
 
 /** Cup generated class to encapsulate user supplied action code.*/
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
 class CUP$Parser$actions {
 
 
-                Hashtable table = new Hashtable();
-                
+        Hashtable table = new Hashtable();
+    
   private final Parser parser;
 
   /** Constructor */
@@ -246,7 +296,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		System.out.println("La BD ha sido creada.");
-                                
+                            
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expr_create_db_sql",1, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -256,7 +306,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		System.out.println("Creando BD...");
-                                
+                            
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expr_create_db",2, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -266,7 +316,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		System.out.println("Inciando...");
-                                
+                            
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expr_create_db_keyword",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -276,7 +326,7 @@ class CUP$Parser$actions {
             {
               Object RESULT =null;
 		System.out.println("Se ha seleccionado la BD.");
-                                
+                            
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expr_use_db_sql",4, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -285,8 +335,13 @@ class CUP$Parser$actions {
           case 9: // expr_keyword_use_db ::= keyword identifier 
             {
               Object RESULT =null;
-		System.out.println("Identificando DB...");
-                                
+		int kwleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
+		int kwright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
+		Object kw = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		
+                            getValueObject(kw);
+                            System.out.println("Identificando DB...");
+                            
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expr_keyword_use_db",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

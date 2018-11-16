@@ -16,7 +16,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.TextFlow?>
 
-<BorderPane fx:id="BorderPane_principal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="827.0" prefWidth="1301.0" style="-fx-background-color: #3c3f41;" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="principal.PrincipalController">
+<BorderPane fx:id="BorderPane_principal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="827.0" prefWidth="1301.0" style="-fx-background-color: #3c3f41;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="principal.PrincipalController">
    <top>
       <BorderPane prefHeight="30.0" prefWidth="1301.0" BorderPane.alignment="CENTER">
          <top>
@@ -144,7 +144,7 @@
                <center>
                   <BorderPane fx:id="PaneButtons" maxHeight="30.0" maxWidth="100.0" minHeight="30.0" minWidth="100.0" prefHeight="30.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                      <left>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                        <ImageView fx:id="imgvRun" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                            <image>
                               <Image url="@../resources/images/run.png" />
                            </image>

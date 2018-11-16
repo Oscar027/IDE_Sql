@@ -396,7 +396,7 @@ public class Lexer implements java_cup.runtime.Scanner {
 
   /** the textposition at the last accepting state */
   private int zzMarkedPos;
-
+  
   /** the current text position in the buffer */
   private int zzCurrentPos;
 
@@ -438,23 +438,56 @@ public class Lexer implements java_cup.runtime.Scanner {
    */
   private int zzFinalHighSurrogate = 0;
 
-  /* user code: */
-    /*public String lexeme;
+  /** the stack of open (nested) input streams to read from */
+  private java.util.Stack<ZzFlexStreamInfo> zzStreams
+    = new java.util.Stack<ZzFlexStreamInfo>();
 
-    public static void main(String args[]) throws Exception {
-    		InputStream is = new FileInputStream(args[0]);
-    		Lexer lexer = new Lexer(is);
+  /**
+   * inner class used to store info for nested
+   * input streams
+   */
+  private static final class ZzFlexStreamInfo {
+    java.io.Reader zzReader;
+    int zzEndRead;
+    int zzStartRead;
+    int zzCurrentPos;
+    int zzMarkedPos;
+    int yyline;
+    int yychar;
+    int yycolumn;
+    char [] zzBuffer;
+    boolean zzAtBOL;
+    boolean zzAtEOF;
+    boolean zzEOFDone;
+    int zzFinalHighSurrogate;
 
-    		Symbol token = null;
-    		do {
-    			token = lexer.next_token();
-    			System.out.println(token == null ? "EOF" : token.toString());
-    		} while (token != null);
-    	}*/
-    public Symbol token( int tokenType ) {
-        System.err.println("Obtain token " + tokenType + " \"" + yytext() + "\"" );
-        return new Symbol( tokenType, new TokenData(yyline+1, yycolumn+1, yycolumn+yylength(), yytext()));
+    /** sets all values stored in this class */
+    ZzFlexStreamInfo(java.io.Reader zzReader, int zzEndRead, int zzStartRead,
+                  int zzCurrentPos, int zzMarkedPos, char [] zzBuffer, 
+                  boolean zzAtBOL, boolean zzAtEOF, boolean zzEOFDone,
+                  int zzFinalHighSurrogate, int yyline, int yychar, int yycolumn) {
+      this.zzReader      = zzReader;
+      this.zzEndRead     = zzEndRead;
+      this.zzStartRead   = zzStartRead;
+      this.zzCurrentPos  = zzCurrentPos;
+      this.zzMarkedPos   = zzMarkedPos;
+      this.zzBuffer      = zzBuffer;
+      this.zzAtBOL       = zzAtBOL;
+      this.zzAtEOF       = zzAtEOF;
+      this.zzEOFDone     = zzEOFDone;
+      this.zzFinalHighSurrogate = zzFinalHighSurrogate;
+      this.yyline        = yyline;
+      this.yychar        = yychar;
+      this.yycolumn      = yycolumn;
     }
+  }
+
+  /* user code: */
+  /**Metodo para retornar el objeto Symbol con la información del token*/
+  public Symbol token( int tokenType ) {
+      System.err.println("Obtain token " + tokenType + " \"" + yytext() + "\"" );
+      return new Symbol( tokenType, new TokenData(yyline+1, yycolumn+1, yycolumn+yylength(), yytext()));
+  }
 
 
   /**
@@ -495,7 +528,7 @@ public class Lexer implements java_cup.runtime.Scanner {
     /* is the buffer big enough? */
     if (zzCurrentPos >= zzBuffer.length - zzFinalHighSurrogate) {
       /* if not: blow it up */
-      char newBuffer[] = new char[zzBuffer.length*2];
+      char newBuffer[] = new char[zzBuffer.length * 2];
       System.arraycopy(zzBuffer, 0, newBuffer, 0, zzBuffer.length);
       zzBuffer = newBuffer;
       zzEndRead += zzFinalHighSurrogate;
@@ -515,7 +548,7 @@ public class Lexer implements java_cup.runtime.Scanner {
       /* If numRead == requested, we might have requested to few chars to
          encode a full Unicode character. We assume that a Reader would
          otherwise never return half characters. */
-      if (numRead == requested) {
+      if (numRead == requested) {      
         if (Character.isHighSurrogate(zzBuffer[zzEndRead - 1])) {
           --zzEndRead;
           zzFinalHighSurrogate = 1;
@@ -543,6 +576,75 @@ public class Lexer implements java_cup.runtime.Scanner {
 
 
   /**
+   * Stores the current input stream on a stack, and
+   * reads from a new stream. Lexical state, line,
+   * char, and column counting remain untouched.
+   *
+   * The current input stream can be restored with
+   * yypopStream (usually in an <<EOF>> action).
+   *
+   * @param reader the new input stream to read from
+   *
+   * @see #yypopStream()
+   */
+  public final void yypushStream(java.io.Reader reader) {
+    zzStreams.push(
+      new ZzFlexStreamInfo(zzReader, zzEndRead, zzStartRead, zzCurrentPos,
+                        zzMarkedPos, zzBuffer, zzAtBOL, zzAtEOF, zzEOFDone,
+                        zzFinalHighSurrogate, yyline, yychar, yycolumn)
+    );
+    zzAtBOL  = true;
+    zzAtEOF  = false;
+    zzBuffer = new char[ZZ_BUFFERSIZE];
+    zzReader = reader;
+    zzEndRead = zzStartRead = 0;
+    zzCurrentPos = zzMarkedPos = 0;
+    zzFinalHighSurrogate = 0;
+    yyline = yychar = yycolumn = 0;
+  }
+    
+
+  /**
+   * Closes the current input stream and continues to
+   * read from the one on top of the stream stack. 
+   *
+   * @throws java.util.EmptyStackException
+   *         if there is no further stream to read from.
+   *
+   * @throws java.io.IOException
+   *         if there was an error in closing the stream.
+   *
+   * @see #yypushStream(java.io.Reader)
+   */
+  public final void yypopStream() throws java.io.IOException {
+    zzReader.close();
+    ZzFlexStreamInfo s = (ZzFlexStreamInfo) zzStreams.pop();
+    zzBuffer      = s.zzBuffer;
+    zzReader      = s.zzReader;
+    zzEndRead     = s.zzEndRead;
+    zzStartRead   = s.zzStartRead;
+    zzCurrentPos  = s.zzCurrentPos;
+    zzMarkedPos   = s.zzMarkedPos;
+    zzAtBOL       = s.zzAtBOL;
+    zzAtEOF       = s.zzAtEOF;
+    zzEOFDone     = s.zzEOFDone;
+    zzFinalHighSurrogate = s.zzFinalHighSurrogate;
+    yyline        = s.yyline;
+    yychar        = s.yychar;
+    yycolumn      = s.yycolumn;
+  }
+
+
+  /**
+   * Returns true iff there are still streams left 
+   * to read from on the stream stack.
+   */
+  public final boolean yymoreStreams() {
+    return !zzStreams.isEmpty();
+  }
+
+
+  /**
    * Resets the scanner to read from a new input stream.
    * Does not close the old reader.
    *
@@ -553,6 +655,9 @@ public class Lexer implements java_cup.runtime.Scanner {
    * Internal scan buffer is resized down to its initial length, if it has grown.
    *
    * @param reader   the new input stream 
+   *
+   * @see #yypushStream(java.io.Reader)
+   * @see #yypopStream()
    */
   public final void yyreset(java.io.Reader reader) {
     zzReader = reader;
@@ -685,19 +790,17 @@ public class Lexer implements java_cup.runtime.Scanner {
     int zzInput;
     int zzAction;
 
-    // cached fields:
-    int zzCurrentPosL;
-    int zzMarkedPosL;
-    int zzEndReadL = zzEndRead;
-    char [] zzBufferL = zzBuffer;
-    char [] zzCMapL = ZZ_CMAP;
-
     int [] zzTransL = ZZ_TRANS;
     int [] zzRowMapL = ZZ_ROWMAP;
     int [] zzAttrL = ZZ_ATTRIBUTE;
 
     while (true) {
-      zzMarkedPosL = zzMarkedPos;
+      // cached fields:
+      int zzCurrentPosL;
+      int zzMarkedPosL = zzMarkedPos;
+      int zzEndReadL = zzEndRead;
+      char [] zzBufferL = zzBuffer;
+      char [] zzCMapL = ZZ_CMAP;
 
       boolean zzR = false;
       int zzCh;
@@ -818,7 +921,14 @@ public class Lexer implements java_cup.runtime.Scanner {
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
             zzDoEOF();
+            switch (zzLexicalState) {
+            case YYINITIAL: {
+              return token(sym.EOF);
+            }  // fall though
+            case 147: break;
+            default:
           { return new java_cup.runtime.Symbol(sym.EOF); }
+        }
       }
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
