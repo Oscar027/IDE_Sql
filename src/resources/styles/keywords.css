@@ -33,9 +33,20 @@
 }*/
 /* numero de linea*/
 .lineno{
-   -fx-font-size: 12px;
-   -fx-background-color: #313335;
-   -fx-text-fill: #afb1b3;
+    -fx-font-family: "Arial Narrow";
+    -fx-background-color: #313335;
+    -fx-text-fill: #48595c;
+    -fx-pref-width: 70px;
+    /*-fx-text-alignment: CENTER;*/
+    -fx-alignment: CENTER;
  }
+
+.lineno .text{
+    -fx-font-family: "Arial Narrow";
+    -fx-font-size: 12px;
+    -fx-background-color: #313335;
+    -fx-text-fill: #48595c;
+    -fx-pref-width: 70px;
+}
 
 
