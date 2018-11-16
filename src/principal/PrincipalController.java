@@ -60,10 +60,12 @@ public class PrincipalController implements Initializable {
 
     //Arreglo de prueba con keywords quemadas
     private static final String[] KEYWORDS_PRUEBA = new String[] {
-            "select", "from" ,"where", "delete","insert","and", "create",
-            "use", "database", "table", "not","null","int","auto_increment"
+            "create","database","table","delete","from","drop","insert","update","select","group","foreign","if","not","exist","where","order","by","into","time",
+            "values","value","set","use","primary","key","null","int","varchar","text","enum","date","datetime","auto_increment","references","engine","InnoDB","MyIsam",
+            "CREATE","DATABASE","TABLE","DELETE","FROM","DROP", "INSERT","UPDATE","SELECT","GROUP","FOREIGN","IF","NOT","EXIST","WHERE","ORDER","BY",
+            "INTO","VALUES","VALUE","SET","USE","PRIMARY","KEY","NULL","INT","VARCHAR","TEXT","ENUM","DATE","DATETIME","AUTO_INCREMENT","REFERENCES","ENGINE","INNODB","MYISAM","TIME"
 
-    };
+};
 
     private static final String MODELO_KEYWORD = "\\b(" + String.join("|",KEYWORDS_PRUEBA) + ")\\b";
     private static final String MODELO_PUNTO_COMA = "\\;";
@@ -359,7 +361,6 @@ public class PrincipalController implements Initializable {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Abrir Archivo");
 
-            // Agregar filtros para facilitar la busqueda
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("SQL", "*.sql"),
                     new FileChooser.ExtensionFilter("All Files", "*.*")
@@ -383,7 +384,9 @@ public class PrincipalController implements Initializable {
                     codeArea.appendText(e.toString());
                 } finally {
                     try {
-                        fr.close();
+                        if (fr != null) {
+                            fr.close();
+                        }
                     } catch (Exception e2) {
                         codeArea.appendText(e2.toString());
                     }
@@ -398,7 +401,6 @@ public class PrincipalController implements Initializable {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Abrir Archivo");
 
-            // Agregar filtros para facilitar la busqueda
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("SQL", "*.sql"),
                     new FileChooser.ExtensionFilter("All Files", "*.*")
@@ -412,7 +414,6 @@ public class PrincipalController implements Initializable {
                 try {
                     fw = new FileWriter(file, false);
                     bw = new BufferedWriter(fw);
-
                     String texto = codeArea.getText();
                     bw.write(texto, 0, texto.length());
                 } catch (Exception e) {
