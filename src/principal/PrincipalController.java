@@ -16,6 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -29,7 +30,7 @@ import org.reactfx.Subscription;
 import resources.classes.toConnection;
 import sqlserver.SQLServerController;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,6 +51,9 @@ public class PrincipalController implements Initializable {
 
     @FXML
     private MenuItem toMySQL, toSQLServer, toOracle;
+
+    @FXML
+    private MenuItem OpenFile, SaveFile;
 
 
     //Resaltado de Sintaxis
@@ -104,6 +108,8 @@ public class PrincipalController implements Initializable {
         ConnectSQLServer();
         ConnectOracle();
         editorSQL();
+        OpenFile();
+        SaveFile();
     }
 
     private void starPrincipal(){
@@ -346,5 +352,81 @@ public class PrincipalController implements Initializable {
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
         return spansBuilder.create();
+    }
+
+    private void OpenFile(){
+        OpenFile.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Abrir Archivo");
+
+            // Agregar filtros para facilitar la busqueda
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("SQL", "*.sql"),
+                    new FileChooser.ExtensionFilter("All Files", "*.*")
+            );
+
+            File file = fileChooser.showOpenDialog(null);
+
+            if (file != null){
+                FileReader fr = null;
+                BufferedReader br = null;
+                String texto = "";
+                try {
+                    fr = new FileReader(file);
+                    br = new BufferedReader(fr);
+                    String st = br.readLine();
+                    while (st != null) {
+                        texto = texto + st + "\n";
+                        st = br.readLine();
+                    }
+                } catch (Exception e) {
+                    codeArea.appendText(e.toString());
+                } finally {
+                    try {
+                        fr.close();
+                    } catch (Exception e2) {
+                        codeArea.appendText(e2.toString());
+                    }
+                }
+                codeArea.appendText(texto);
+            }
+        });
+    }
+
+    private void SaveFile(){
+        SaveFile.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Abrir Archivo");
+
+            // Agregar filtros para facilitar la busqueda
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("SQL", "*.sql"),
+                    new FileChooser.ExtensionFilter("All Files", "*.*")
+            );
+
+            File file = fileChooser.showSaveDialog(null);
+
+            if (file != null){
+                FileWriter fw = null;
+                BufferedWriter bw = null;
+                try {
+                    fw = new FileWriter(file, false);
+                    bw = new BufferedWriter(fw);
+
+                    String texto = codeArea.getText();
+                    bw.write(texto, 0, texto.length());
+                } catch (Exception e) {
+                    codeArea.appendText(e.toString());
+                } finally {
+                    try {
+                        if (bw != null) {
+                            bw.close();
+                        }
+                    } catch (Exception e2) {
+                        codeArea.appendText(e2.toString());
+                    }
+                }
+            }
+        });
     }
 }
