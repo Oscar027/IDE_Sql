@@ -5,6 +5,11 @@ import static scanner.Tokens.*;
 import scanner.TokenData;
 import com.jhonyrg.dev.parser.sym;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java_cup.runtime.*;
 
 
@@ -483,10 +488,68 @@ public class Lexer implements java_cup.runtime.Scanner {
   }
 
   /* user code: */
+  Logger log = Logger.getLogger(getClass().getName());
+
+  /**Declaracion de las listas*/
+  private static List<String> tkKeywords;
+  private static List<String> tkIdentifiers;
+  private static List<String> tkSymbols;
+
+  /**Getters para las listas*/
+  public static List<String> gettkKeywords() {
+    return tkKeywords;
+  }
+
+  public static List<String> gettkIdentifiers() {
+    return tkIdentifiers;
+  }
+
+  public static List<String> gettkSymbols() {
+    return tkSymbols;
+  }
+
   /**Metodo para retornar el objeto Symbol con la información del token*/
-  public Symbol token( int tokenType ) {
-      System.err.println("Obtain token " + tokenType + " \"" + yytext() + "\"" );
-      return new Symbol( tokenType, new TokenData(yyline+1, yycolumn+1, yycolumn+yylength(), yytext()));
+  private Symbol token( int tokenType ) {
+      log.log(Level.INFO, "Obtain token " + tokenType + " \"" + yytext() + "\"" );
+      TokenData tokenData = new TokenData(tokenType, yyline+1, yycolumn+1, yycolumn+yylength(),
+              yycharat(yycolumn), yytext());
+
+      //agregando el token a la lista
+      this.addToken(tokenData);
+
+      //return new Symbol( tokenType, new TokenData(yyline+1, yycolumn+1, yycolumn+yylength(), yytext()));
+      return new Symbol(tokenType, tokenData);
+  }
+
+  /**Metodo para agregar los tokens encontrados a la lista correspondiente según el tipo*/
+  private void addToken(TokenData data){
+    switch (data.getType()){
+      case sym.keyword:
+        tkKeywords.add(data.getLexeme());
+        log.log(Level.INFO, "Keyword added");
+        break;
+
+      case sym.identifier:
+        tkIdentifiers.add(data.getLexeme());
+        log.log(Level.INFO, "Identifiers added");
+        break;
+
+      case sym.symbol:
+        tkSymbols.add(data.getLexeme());
+        log.log(Level.INFO, "Symbol added");
+        break;
+
+      default:
+        log.log(Level.INFO, "Keyword added");
+        break;
+    }
+  }
+
+  /**Metodo para inicializar las listas*/
+  public void initList() {
+    tkKeywords = new ArrayList<>();
+    tkIdentifiers = new ArrayList<>();
+    tkSymbols = new ArrayList<>();
   }
 
 
@@ -802,6 +865,8 @@ public class Lexer implements java_cup.runtime.Scanner {
       char [] zzBufferL = zzBuffer;
       char [] zzCMapL = ZZ_CMAP;
 
+      yychar+= zzMarkedPosL-zzStartRead;
+
       boolean zzR = false;
       int zzCh;
       int zzCharCount;
@@ -921,14 +986,7 @@ public class Lexer implements java_cup.runtime.Scanner {
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
             zzDoEOF();
-            switch (zzLexicalState) {
-            case YYINITIAL: {
-              return token(sym.EOF);
-            }  // fall though
-            case 147: break;
-            default:
           { return new java_cup.runtime.Symbol(sym.EOF); }
-        }
       }
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {

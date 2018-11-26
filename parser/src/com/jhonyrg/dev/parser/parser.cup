@@ -26,6 +26,7 @@ import java_cup.runtime.*;
 
         try {
             lexer = new Lexer(new FileReader(file));
+            lexer.initList();
         }
         catch ( IOException exception ) {
             throw new Error( "Unable to open file \"" + file + "\"" );
@@ -38,6 +39,7 @@ import java_cup.runtime.*;
 
         try {
             lexer = new Lexer(new StringReader(in));
+            lexer.initList();
         }
         catch ( Exception exception ) {
             throw new Error( "PARSER Unable to processing input \"" + in + "\"" );
@@ -85,8 +87,8 @@ import java_cup.runtime.*;
                 if(tokenData.getLine() >= 0){
                     mBuilder.append(" in line " + tokenData.getLine());
 
-                    if(tokenData.getFirstChar() >= 0){
-                        mBuilder.append(", column " + tokenData.getFirstChar());
+                    if(tokenData.getFirstCol() >= 0){
+                        mBuilder.append(", column " + tokenData.getFirstCol());
                     }
                 }
 

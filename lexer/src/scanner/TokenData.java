@@ -1,39 +1,37 @@
 package scanner;
 
 public class TokenData {
-    int line;
-    int firstChar;
-    int lastChar;
-    String lexeme;
+    private int type;
+    private int line;
+    private int firstCol;
+    private int lastCol;
+    private char fchar;
+    private String lexeme;
 
-    public TokenData(int line, int firstChar, int lastChar, String lexeme) {
-        this.firstChar = firstChar;
-        this.lastChar = lastChar;
+    public TokenData(int type, int line, int firstCol, int lastCol, char fchar, String lexeme) {
+        this.type = type;
+        this.firstCol = firstCol;
+        this.lastCol = lastCol;
         this.line = line;
+        this.fchar = fchar;
         this.lexeme = lexeme;
     }
 
     public TokenData() {
-        this.firstChar = 0;
-        this.lastChar = 0;
+        this.type = 0;
+        this.firstCol = 0;
+        this.lastCol = 0;
         this.line = 0;
+        this.fchar = ' ';
         this.lexeme = "";
     }
 
-    public int getFirstChar() {
-        return firstChar;
+    public int getType() {
+        return type;
     }
 
-    public void setFirstChar(int firstChar) {
-        this.firstChar = firstChar;
-    }
-
-    public int getLastChar() {
-        return lastChar;
-    }
-
-    public void setLastChar(int lastChar) {
-        this.lastChar = lastChar;
+    public void setType(int type) {
+        this.type = type;
     }
 
     public int getLine() {
@@ -42,6 +40,30 @@ public class TokenData {
 
     public void setLine(int line) {
         this.line = line;
+    }
+
+    public int getFirstCol() {
+        return firstCol;
+    }
+
+    public void setFirstCol(int firstCol) {
+        this.firstCol = firstCol;
+    }
+
+    public int getLastCol() {
+        return lastCol;
+    }
+
+    public void setLastCol(int lastCol) {
+        this.lastCol = lastCol;
+    }
+
+    public char getFchar() {
+        return fchar;
+    }
+
+    public void setFchar(char fchar) {
+        this.fchar = fchar;
     }
 
     public String getLexeme() {

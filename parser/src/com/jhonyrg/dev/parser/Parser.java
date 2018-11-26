@@ -11,6 +11,7 @@ import java.util.*;
 import java.io.*;
 import java_cup.runtime.*;
 import java_cup.runtime.XMLElement;
+import scanner.Tokens;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -122,8 +123,10 @@ public class Parser extends java_cup.runtime.lr_parser {
         void onParserResult(TokenData token);
     }
 
-    ListenerParser listenerParser;
+    private ListenerParser listenerParser;
+    private ParserListener parserListener;
     private Lexer lexer;
+
 
     /**Constructores*/
     public Parser(File file ) {
@@ -132,6 +135,7 @@ public class Parser extends java_cup.runtime.lr_parser {
 
         try {
             lexer = new Lexer(new FileReader(file));
+            lexer.initList();
         }
         catch ( IOException exception ) {
             throw new Error( "Unable to open file \"" + file + "\"" );
@@ -144,13 +148,17 @@ public class Parser extends java_cup.runtime.lr_parser {
 
         try {
             lexer = new Lexer(new StringReader(in));
+            lexer.initList();
         }
         catch ( Exception exception ) {
             throw new Error( "PARSER Unable to processing input \"" + in + "\"" );
         }
     }
 
-
+    /**Metodo para setear parserListener*/
+    public void setParserListener(ParserListener listener){
+        this.parserListener = listener;
+    }
 
     /**Metodo para setear el listener en caso de ser necesario*/
     public void setListenerParser(ListenerParser listenerParser){
@@ -163,15 +171,19 @@ public class Parser extends java_cup.runtime.lr_parser {
         if(result instanceof java_cup.runtime.Symbol){
             System.out.println("Result type symbol");
             tokenData  = ((TokenData) ((java_cup.runtime.Symbol) result).value);
-            this.listenerParser.onParserResult(tokenData);
+//            this.listenerParser.onParserResult(tokenData);
+//            this.parserListener.onParserResult(tokenData);
         }else if(result instanceof TokenData){
             System.out.println("Result type Token");
             tokenData = (TokenData) result;
-            this.listenerParser.onParserResult(tokenData);
+//            this.listenerParser.onParserResult(tokenData);
+//            this.parserListener.onParserResult(tokenData);
+
         }else{
             System.out.println("Result type unknown");
             tokenData = null;
-            this.listenerParser.onParserResult(tokenData);
+//            this.listenerParser.onParserResult(tokenData);
+//            this.parserListener.onParserResult(tokenData);
         }
     }
 
@@ -194,8 +206,8 @@ public class Parser extends java_cup.runtime.lr_parser {
                 if(tokenData.getLine() >= 0){
                     mBuilder.append(" in line " + tokenData.getLine());
 
-                    if(tokenData.getFirstChar() >= 0){
-                        mBuilder.append(", column " + tokenData.getFirstChar());
+                    if(tokenData.getFirstCol() >= 0){
+                        mBuilder.append(", column " + tokenData.getFirstCol());
                     }
                 }
 
