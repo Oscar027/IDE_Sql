@@ -1,6 +1,8 @@
 package principal;
 
 import com.jhonyrg.dev.parser.Parser;
+import com.jhonyrg.dev.parser.ParserCallback;
+import com.jhonyrg.dev.parser.sym;
 import connection.FXConnection;
 import connection.FXConnectionMySQL;
 import connection.FXConnectionOracle;
@@ -28,10 +30,14 @@ import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
 import resources.classes.toConnection;
+import scanner.LexerCallback;
+import scanner.TokenData;
 import sqlserver.SQLServerController;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -43,10 +49,22 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PrincipalController implements Initializable, Parser.ListenerParser {
+public class PrincipalController implements Initializable, ParserCallback, LexerCallback {
     /**Declaraciones*/
     //Instancia del Parser
     private Parser parser;
+
+    //Listas
+    private static List<String> tkKeywords;
+    private static List<String> tkIdentifiers;
+    private static List<String> tkSymbols;
+
+    //Encode
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final Charset ISO = Charset.forName("ISO-8859-1");
+
+    //Logger
+    private Logger log = Logger.getLogger(getClass().getName());
 
     //Controles
     @FXML
@@ -75,6 +93,7 @@ public class PrincipalController implements Initializable, Parser.ListenerParser
     private static final String MODELO_PUNTO_COMA = "\\;";
     private static final String MODELO_COMENTARIO = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
 
+    private static Pattern PATTERN_EDITOR;
 
     private static final Pattern MODELO = Pattern.compile(
             "(?<KEYWORD>" + MODELO_KEYWORD + ")"
@@ -139,9 +158,17 @@ public class PrincipalController implements Initializable, Parser.ListenerParser
             }
         });
 
-        /**Inicializando analizador*/
-        this.parser = new Parser("create");
-        this.parser.setListenerParser(this);
+        //Inicializando analizador
+        this.parser = new Parser(this);
+        this.parser.setParserCallback(this);
+
+        //Inicializando Listas
+        tkKeywords = new ArrayList<>();
+        tkIdentifiers = new ArrayList<>();
+        tkSymbols = new ArrayList<>();
+
+        //Asignando evento
+        //this.codeArea.setOnKeyTyped(event -> setSourceParser(codeArea.getText()));
     }
 
     public void getDatabaseMySQL(String db, Image image){
@@ -321,7 +348,7 @@ public class PrincipalController implements Initializable, Parser.ListenerParser
         codeArea.setId("codeArea");
 
         Subscription cleanupWhenDone = codeArea.multiPlainChanges()
-                .successionEnds(java.time.Duration.ofMillis(500))
+                .successionEnds(java.time.Duration.ofMillis(100))
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(codeArea.multiPlainChanges())
                 .filterMap(t -> {
@@ -341,7 +368,10 @@ public class PrincipalController implements Initializable, Parser.ListenerParser
 
     //Calculando el resaltado asincrono (NO SE SI ME EXPLICO :v )
     private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
-        String text = codeArea.getText();
+        //String text = codeArea.getText();
+        byte []mbByteBuffer = codeArea.getText().getBytes(StandardCharsets.UTF_8);
+        String text = new String(mbByteBuffer, StandardCharsets.UTF_8);
+        this.setSourceParser(codeArea.getText());
         Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
             @Override
             protected StyleSpans<Collection<String>> call() throws Exception {
@@ -353,20 +383,21 @@ public class PrincipalController implements Initializable, Parser.ListenerParser
 
     }
 
-    //aplicando el resaltado
+    //Aplicando el resaltado de keywords, entre otros
     private void applyHighlighting(StyleSpans<Collection<String>> highlighting) {
        codeArea.setStyleSpans(0, highlighting);
 
     }
 
+    /**Highlighting*/
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
 
-        Matcher matcher = MODELO.matcher(text);
+        Matcher matcher = getPattern().matcher(text);
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         while(matcher.find()) {
             String styleClass = matcher.group("KEYWORD") != null ? "keyword" :
-                                   matcher.group("PUNTOCOMA") != null ? "punto_coma" :
+                                   matcher.group("SYMBOL") != null ? "simbolo" :
                                         matcher.group("COMENTARIO") != null ? "comentarios" :
                                                 null; /* no pasa */ assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
@@ -377,25 +408,64 @@ public class PrincipalController implements Initializable, Parser.ListenerParser
         return spansBuilder.create();
     }
 
+    /**Funcion para crear el patron para el Highlighting*/
+    private static Pattern getPattern(){
+        PATTERN_EDITOR = Pattern.compile(
+                "(?<KEYWORD>" + "\\b(" + String.join("|", tkKeywords) + ")\\b" + ")"
+                        + "|(?<SYMBOL>" + String.join("|", tkSymbols) + ")"
+                        + "|(?<COMENTARIO>" + MODELO_COMENTARIO + ")"
+        );
+        return PATTERN_EDITOR;
+    }
+
     /**Funcion para setear el texto de entrada al parser y ejecutarlo*/
     private void setSourceParser(String sqlText){
         try {
             this.parser.continueRead(sqlText);
             this.parser.parse();
+            log.log(Level.INFO, "re-loaded Parser");
         } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage());
+            log.log(Level.SEVERE, ex.getMessage());
         }
     }
 
-    /**Configuracion del listener
-     * Metodo callback que se ejecuta cada vez que el Parser devuelva un RESULT*/
+    /**Metodo sobrescrito del listener del Parser
+     * Metodo para escuchar a traves del callback cuando el Parser envie un RESULT*/
     @Override
     public void onParserResult(scanner.TokenData token) {
-        if(token != null){
-            System.out.println("Escuchando... VALUE");
-        }else{
-            System.out.println("Escuchando... NULL");
+        log.log(Level.INFO, "Escuchando al Parser");
+    }
+
+    /**Metodo sobrescrito del listener del Lexer
+     * Metodo para escuchar a traves del callback cuando el Lexer envie un RESULT*/
+    @Override
+    public void onTokenFound(TokenData token) {
+        log.log(Level.INFO, "Escuchando al Lexer");
+        switch (token.getType()){
+            case sym.keyword:
+            if(!tkKeywords.contains(token.getLexeme())){
+              tkKeywords.add(token.getLexeme());
+              log.log(Level.INFO, "Keyword added");
+            }
+            break;
+
+          case sym.identifier:
+            if(!tkIdentifiers.contains(token.getLexeme())){
+              tkIdentifiers.add(token.getLexeme());
+              log.log(Level.INFO, "Identifier added");
+            }
+            break;
+
+          case sym.symbol:
+            if(!tkSymbols.contains(token.getLexeme())){
+              tkSymbols.add(token.getLexeme());
+              log.log(Level.INFO, "Symbol added");
+            }
+            break;
+
+          default:
+            log.log(Level.INFO, "Token Found");
+            break;
         }
     }
 }
