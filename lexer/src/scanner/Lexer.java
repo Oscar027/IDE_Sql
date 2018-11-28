@@ -496,15 +496,15 @@ public class Lexer implements java_cup.runtime.Scanner {
   private static List<String> tkSymbols;
 
   /**Getters para las listas*/
-  public static List<String> gettkKeywords() {
+  public static List<String> getTkKeywords() {
     return tkKeywords;
   }
 
-  public static List<String> gettkIdentifiers() {
+  public static List<String> getTkIdentifiers() {
     return tkIdentifiers;
   }
 
-  public static List<String> gettkSymbols() {
+  public static List<String> getTkSymbols() {
     return tkSymbols;
   }
 
@@ -525,22 +525,28 @@ public class Lexer implements java_cup.runtime.Scanner {
   private void addToken(TokenData data){
     switch (data.getType()){
       case sym.keyword:
-        tkKeywords.add(data.getLexeme());
-        log.log(Level.INFO, "Keyword added");
+        if(!tkKeywords.contains(data.getLexeme())){
+          tkKeywords.add(data.getLexeme());
+          log.log(Level.INFO, "Keyword added");
+        }
         break;
 
       case sym.identifier:
-        tkIdentifiers.add(data.getLexeme());
-        log.log(Level.INFO, "Identifiers added");
+        if(!tkIdentifiers.contains(data.getLexeme())){
+          tkIdentifiers.add(data.getLexeme());
+          log.log(Level.INFO, "Identifier added");
+        }
         break;
 
       case sym.symbol:
-        tkSymbols.add(data.getLexeme());
-        log.log(Level.INFO, "Symbol added");
+        if(!tkSymbols.contains(data.getLexeme())){
+          tkSymbols.add(data.getLexeme());
+          log.log(Level.INFO, "Symbol added");
+        }
         break;
 
       default:
-        log.log(Level.INFO, "Keyword added");
+        log.log(Level.INFO, "Token Found");
         break;
     }
   }

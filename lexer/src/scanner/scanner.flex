@@ -62,22 +62,28 @@ DATABASE = "database" | "Database" | "DATABASE"
   private void addToken(TokenData data){
     switch (data.getType()){
       case sym.keyword:
-        tkKeywords.add(data.getLexeme());
-        log.log(Level.INFO, "Keyword added");
+        if(!tkKeywords.contains(data.getLexeme())){
+          tkKeywords.add(data.getLexeme());
+          log.log(Level.INFO, "Keyword added");
+        }
         break;
 
       case sym.identifier:
-        tkIdentifiers.add(data.getLexeme());
-        log.log(Level.INFO, "Identifiers added");
+        if(!tkIdentifiers.contains(data.getLexeme())){
+          tkIdentifiers.add(data.getLexeme());
+          log.log(Level.INFO, "Identifier added");
+        }
         break;
 
       case sym.symbol:
-        tkSymbols.add(data.getLexeme());
-        log.log(Level.INFO, "Symbol added");
+        if(!tkSymbols.contains(data.getLexeme())){
+          tkSymbols.add(data.getLexeme());
+          log.log(Level.INFO, "Symbol added");
+        }
         break;
 
       default:
-        log.log(Level.INFO, "Keyword added");
+        log.log(Level.INFO, "Token Found");
         break;
     }
   }
