@@ -6,12 +6,13 @@
 package com.jhonyrg.dev.parser;
 
 import scanner.Lexer;
+import scanner.LexerCallback;
 import scanner.TokenData;
 import java.util.*;
 import java.io.*;
-import java_cup.runtime.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java_cup.runtime.XMLElement;
-import scanner.Tokens;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -117,73 +118,58 @@ public class Parser extends java_cup.runtime.lr_parser {
     }
 
 
-    /********************************************/
-    /**Interfaz*/
-    public interface ListenerParser {
-        void onParserResult(TokenData token);
-    }
-
-    private ListenerParser listenerParser;
-    private ParserListener parserListener;
+    /*****Begin user code***************************************/
+    private Logger log = Logger.getLogger(getClass().getName());
+    private ParserCallback listener;
     private Lexer lexer;
 
 
     /**Constructores*/
     public Parser(File file ) {
         this();
-        this.listenerParser = null;
 
         try {
             lexer = new Lexer(new FileReader(file));
-            lexer.initList();
+            //lexer.setCallback();
         }
         catch ( IOException exception ) {
             throw new Error( "Unable to open file \"" + file + "\"" );
         }
     }
 
-    public Parser(String in ) {
+    public Parser(LexerCallback lexerCallback ) {
         this();
-        this.listenerParser = null;
 
         try {
-            lexer = new Lexer(new StringReader(in));
-            lexer.initList();
+            lexer = new Lexer(new StringReader("create"));
+            lexer.setCallback(lexerCallback);
         }
         catch ( Exception exception ) {
-            throw new Error( "PARSER Unable to processing input \"" + in + "\"" );
+            log.log(Level.SEVERE, exception.getMessage());
         }
     }
 
-    /**Metodo para setear parserListener*/
-    public void setParserListener(ParserListener listener){
-        this.parserListener = listener;
-    }
-
-    /**Metodo para setear el listener en caso de ser necesario*/
-    public void setListenerParser(ListenerParser listenerParser){
-        this.listenerParser =listenerParser;
+    /**Metodo para setear callback al parser*/
+    public void setParserCallback(ParserCallback listener){
+        this.listener = listener;
     }
 
     /**Metodo para obtener el valor del Objeto retornado*/
-    void getValueObject(Object result){
+    void toCallbackResult(Object result){
+        log.log(Level.INFO,"To Callback result");
         TokenData tokenData;
         if(result instanceof java_cup.runtime.Symbol){
-            System.out.println("Result type symbol");
+            //log.log(Level.INFO,"Result type symbol");
             tokenData  = ((TokenData) ((java_cup.runtime.Symbol) result).value);
-//            this.listenerParser.onParserResult(tokenData);
-//            this.parserListener.onParserResult(tokenData);
+            this.listener.onParserResult(tokenData);
         }else if(result instanceof TokenData){
-            System.out.println("Result type Token");
+            //log.log(Level.INFO,"Result type token");
             tokenData = (TokenData) result;
-//            this.listenerParser.onParserResult(tokenData);
-//            this.parserListener.onParserResult(tokenData);
+            this.listener.onParserResult(tokenData);
 
         }else{
-            System.out.println("Result type unknown");
-            tokenData = null;
-//            this.listenerParser.onParserResult(tokenData);
-//            this.parserListener.onParserResult(tokenData);
+            //log.log(Level.INFO,"Result type unknown");
+            this.listener.onParserResult(null);
         }
     }
 
@@ -195,9 +181,9 @@ public class Parser extends java_cup.runtime.lr_parser {
         this.lexer.yyreset(new StringReader(in));
     }
 
-    /**Metodos para manejar errores*/
+    /**Metodos para manejar errores recuperables*/
     public void report_error(String message, Object data){
-        StringBuilder mBuilder = new StringBuilder("- Error");
+        StringBuilder mBuilder = new StringBuilder("-*- Error");
 
         if(data instanceof java_cup.runtime.Symbol){
             TokenData tokenData  = ((TokenData) ((java_cup.runtime.Symbol) data).value);
@@ -217,12 +203,13 @@ public class Parser extends java_cup.runtime.lr_parser {
         }
     }
 
+    /**Metodos para manejar errores no recuperables*/
     public void report_fatal_error(String message, Object data){
         report_error(message, data);
         //Finalizar la ejecución
         //System.exit(1);
     }
-    /********************************************/
+    /*****End code user***************************************/
     
 
 /** Cup generated class to encapsulate user supplied action code.*/
@@ -230,7 +217,7 @@ public class Parser extends java_cup.runtime.lr_parser {
 class CUP$Parser$actions {
 
 
-        Hashtable table = new Hashtable();
+        Hashtable table = new Hashtable();      //Para análisis semantico
     
   private final Parser parser;
 
@@ -351,7 +338,7 @@ class CUP$Parser$actions {
 		int kwright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Object kw = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		
-                            getValueObject(kw);
+                            toCallbackResult(kw);
                             System.out.println("Identificando DB...");
                             
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("expr_keyword_use_db",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);

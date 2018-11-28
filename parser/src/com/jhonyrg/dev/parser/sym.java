@@ -8,12 +8,9 @@ package com.jhonyrg.dev.parser;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int CREATE = 5;
   public static final int keyword = 2;
   public static final int identifier = 3;
   public static final int error = 1;
-  public static final int DATABASE = 6;
-  public static final int SEMI = 7;
   public static final int symbol = 4;
   public static final int EOF = 0;
   public static final String[] terminalNames = new String[] {
@@ -21,10 +18,7 @@ public class sym {
   "error",
   "keyword",
   "identifier",
-  "symbol",
-  "CREATE",
-  "DATABASE",
-  "SEMI"
+  "symbol"
   };
 }
 
