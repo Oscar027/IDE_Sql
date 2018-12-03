@@ -48,5 +48,14 @@
     -fx-text-fill: #48595c;
     -fx-pref-width: 70px;
 }
+.comillas{
+    -fx-fill: #607845;
+}
+
+.virtualized-scroll-pane{
+    -fx-background-color: #2b2b2b;
+
+}
+
 
 

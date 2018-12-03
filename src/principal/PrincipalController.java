@@ -28,6 +28,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import mysql.MySQLController;
 import oracle.OracleController;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.model.StyleSpans;
@@ -84,11 +85,13 @@ public class PrincipalController implements Initializable {
     private static final String MODELO_KEYWORD = "\\b(" + String.join("|",KEYWORDS_PRUEBA) + ")\\b";
     private static final String MODELO_PUNTO_COMA = "\\;";
     private static final String MODELO_COMENTARIO = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
+    private static final String MODELO_COMILLAS = "(\\')([a-zA-Z0-9]+)(\\')";
 
     private static final Pattern MODELO = Pattern.compile(
             "(?<KEYWORD>" + MODELO_KEYWORD + ")"
                     + "|(?<PUNTOCOMA>" + MODELO_PUNTO_COMA + ")"
                     + "|(?<COMENTARIO>" + MODELO_COMENTARIO + ")"
+                    + "|(?<COMILLAS>" + MODELO_COMILLAS + ")"
     );
 
     private CodeArea codeArea;
@@ -340,12 +343,20 @@ public class PrincipalController implements Initializable {
                 })
                 .subscribe(this::applyHighlighting);
 
-        stackEditor.getStylesheets().add(getClass().getResource("../resources/styles/keywords.css").toExternalForm());
-        stackEditor.getChildren().addAll(codeArea);
 
+        //stackEditor.getStylesheets().add(getClass().getResource("../resources/styles/keywords.css").toExternalForm());
+        //stackEditor.getChildren().addAll(codeArea);
+        Scene scene = new Scene(new StackPane(new VirtualizedScrollPane<>(codeArea)));
+      //  VirtualizedScrollPane virtualizedScrollPane = new VirtualizedScrollPane(codeArea);
+     //   Scene scene = new Scene(new StackPane(new ScrollBar<>(codeArea)));
+        stackEditor.getStylesheets().add(getClass().getResource("../resources/styles/keywords.css").toExternalForm());
+        stackEditor.getChildren().addAll(scene.getRoot());
+       // stackEditor.getChildren().addAll(codeArea);
+
+       // codeArea.setOnContextMenuRequested();
     }
 
-    //Calculando el resaltado asincrono (NO SE SI ME EXPLICO :v )
+    //Calculando el resaltado asincrono
     private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
         String text = codeArea.getText();
         Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
@@ -374,6 +385,7 @@ public class PrincipalController implements Initializable {
             String styleClass = matcher.group("KEYWORD") != null ? "keyword" :
                                    matcher.group("PUNTOCOMA") != null ? "punto_coma" :
                                         matcher.group("COMENTARIO") != null ? "comentarios" :
+                                                matcher.group("COMILLAS") != null ? "comillas":
                                                 null; /* no pasa */ assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
