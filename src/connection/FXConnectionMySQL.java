@@ -31,7 +31,7 @@ public class FXConnectionMySQL implements FXConnection {
     public void Connect() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-            this.Conn = DriverManager.getConnection("jdbc:mysql://" + toConnection.getHost() + ":" + toConnection.getPort() + "/" + Database +"?useSSL=false&serverTimezone=UTC", Username, Password);
+            this.Conn = DriverManager.getConnection("jdbc:mysql://" + toConnection.getHost() + ":" + toConnection.getPort() + "/?useSSL=false&serverTimezone=UTC", Username, Password);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }

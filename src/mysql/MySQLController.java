@@ -39,7 +39,8 @@ public class MySQLController implements Initializable {
             toConnection.setPassword(Password.getText());
             toConnection.setHost(Host.getText());
             toConnection.setPort(Port.getText());
-            principalController.getDatabaseMySQL("MySQL",principalController.mysql);
+            principalController.setConnectMySQL();
+            principalController.getDatabaseMySQL();
             OK.getScene().getWindow().hide();
         });
     }

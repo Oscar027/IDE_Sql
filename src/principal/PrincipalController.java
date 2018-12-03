@@ -5,10 +5,12 @@ import connection.FXConnectionMySQL;
 import connection.FXConnectionOracle;
 import connection.FXConnectionSQLServer;
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -16,6 +18,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -35,6 +41,7 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,6 +62,13 @@ public class PrincipalController implements Initializable {
     @FXML
     private MenuItem OpenFile, SaveFile;
 
+    @FXML
+    private ImageView ExecuteAll, ExecuteBlock, CleanAndBeauty;
+
+    @FXML
+    private ScrollPane SPaux;
+
+    private TextFlow OutPut = new TextFlow();
 
     //Resaltado de Sintaxis
 
@@ -95,12 +109,17 @@ public class PrincipalController implements Initializable {
 
     private PrincipalController controller;
 
-    private List<TreeItem<String>> databases = new ArrayList<>();
+    private List<TreeItem<String>> databases;
     private List<TreeItem<String>> tables;
     private List<TreeItem<String>> fields;
 
     private MenuItem menuItem = new MenuItem("Disconnect",new ImageView(close));
 
+    private FXConnection connectionMySQL = new FXConnectionMySQL();
+
+    private FXConnection connection;
+
+    private TreeItem<String> manager;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -112,27 +131,32 @@ public class PrincipalController implements Initializable {
         editorSQL();
         OpenFile();
         SaveFile();
+        Execute();
+        SPaux.setContent(OutPut);
     }
 
     private void starPrincipal(){
-        FadeTransition fade = new FadeTransition();
+        /*FadeTransition fade = new FadeTransition();
         fade.setDuration(Duration.millis(100));
         fade.setFromValue(0);
         fade.setToValue(1);
         fade.setNode(BorderPane_principal);
-        fade.play();
+        fade.play();*/
     }
 
-    public void getDatabaseMySQL(String db, Image image){
-        TreeItem manager = new TreeItem<>(db, new ImageView(image));
-        FXConnection connection = new FXConnectionMySQL();
-        connection.setData(toConnection.getUser(),toConnection.getPassword());
-        connection.Connect();
+    public void setConnectMySQL(){
+        connectionMySQL.setData(toConnection.getUser(),toConnection.getPassword());
+        connectionMySQL.Connect();
+    }
+
+    public void getDatabaseMySQL(){
+        manager = new TreeItem<>("MySQL", new ImageView(mysql));
+        databases  = new ArrayList<>();
         try {
             PreparedStatement ps1,ps2,ps3;
             String sql = "select schema_name from information_schema.schemata;";
             ResultSet rs1,rs2,rs3;
-            ps1 = connection.getConnection().prepareStatement(sql);
+            ps1 = connectionMySQL.getConnection().prepareStatement(sql);
             rs1 = ps1.executeQuery();
             int i = 0;
             while (rs1.next()) {
@@ -142,7 +166,7 @@ public class PrincipalController implements Initializable {
                 else {
                     databases.add(new TreeItem<>(rs1.getString("schema_name"), new ImageView(database)));
                     sql = "show tables from " + rs1.getString("schema_name") + ";";
-                    ps2 = connection.getConnection().prepareStatement(sql);
+                    ps2 = connectionMySQL.getConnection().prepareStatement(sql);
                     rs2 = ps2.executeQuery();
                     tables = new ArrayList<>();
                     int j = 0;
@@ -150,7 +174,7 @@ public class PrincipalController implements Initializable {
                         tables.add(new TreeItem<>(rs2.getString("tables_in_" + rs1.getString("schema_name")), new ImageView(table)));
                         sql = "show fields from " + rs1.getString("schema_name") + "." + rs2.getString("tables_in_" + rs1.getString("schema_name")) + ";";
                         //System.out.println("show fields from " + rs1.getString("schema_name") + "." + rs2.getString("tables_in_" + rs1.getString("schema_name")) + ";");
-                        ps3 = connection.getConnection().prepareStatement(sql);
+                        ps3 = connectionMySQL.getConnection().prepareStatement(sql);
                         rs3 = ps3.executeQuery();
                         fields = new ArrayList<>();
                         while (rs3.next()) {
@@ -169,11 +193,12 @@ public class PrincipalController implements Initializable {
             e.printStackTrace();
         }
         treeView.setRoot(manager);
+        manager.setExpanded(true);
     }
 
     public void getDatabaseSQLServer(String db, Image image){
-        TreeItem<String> manager = new TreeItem<>(db, new ImageView(image));
-        FXConnection connection = new FXConnectionSQLServer();
+        manager = new TreeItem<>(db, new ImageView(image));
+        connection = new FXConnectionSQLServer();
         connection.setData(toConnection.getUser(),toConnection.getPassword(),toConnection.getAlternative());
         connection.Connect();
         try {
@@ -212,11 +237,12 @@ public class PrincipalController implements Initializable {
             e.printStackTrace();
         }
         treeView.setRoot(manager);
+        manager.setExpanded(true);
     }
 
     public void getDatabaseOracle(String db, Image image){
-        TreeItem<String> manager = new TreeItem<>(db, new ImageView(image));
-        FXConnection connection = new FXConnectionOracle();
+        manager = new TreeItem<>(db, new ImageView(image));
+        connection = new FXConnectionOracle();
         connection.setData(toConnection.getUser(),toConnection.getPassword());
         connection.Connect();
         if (connection.getConnection() != null){
@@ -226,6 +252,7 @@ public class PrincipalController implements Initializable {
             System.out.println("No Connected");
         }
         treeView.setRoot(manager);
+        manager.setExpanded(true);
     }
 
     private void ConnectMySQL(){
@@ -300,7 +327,7 @@ public class PrincipalController implements Initializable {
         codeArea.setId("codeArea");
 
         Subscription cleanupWhenDone = codeArea.multiPlainChanges()
-                .successionEnds(java.time.Duration.ofMillis(500))
+                .successionEnds(java.time.Duration.ofMillis(10))
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(codeArea.multiPlainChanges())
                 .filterMap(t -> {
@@ -428,6 +455,66 @@ public class PrincipalController implements Initializable {
                     }
                 }
             }
+        });
+    }
+
+    private boolean getAux(String text){
+        String regexp = "[\\n]+";
+        Pattern pattern = Pattern.compile(regexp);
+        Matcher matcher = pattern.matcher(text);
+        return matcher.matches();
+    }
+
+    private void Execute(){
+        ExecuteAll.setOnMouseClicked(event -> {
+            String[] Parts = codeArea.getText().replaceAll("\n","").split(";");
+            new Thread(() -> {
+                try {
+                    PreparedStatement preparedStatement;
+                    for(int i = 0; i < Parts.length; i++){
+                        preparedStatement = connectionMySQL.getConnection().prepareStatement(Parts[i] + ";");
+                        preparedStatement.execute();
+                        String[] aux = Parts[i].split(" ");
+                        var ref = new Object() {
+                            Text text = new Text();
+                        };
+                        if ((aux[0] + " " + aux[1]).equals("create database") || (aux[0] + " " + aux[1]).equals("CREATE DATABASE")){
+                            ref.text = new Text("Database " + aux[2] + " created successfully\n");
+                        }
+                        if ((aux[0] + " " + aux[1]).equals("create table") || (aux[0] + " " + aux[1]).equals("CREATE TABLE")){
+                            ref.text = new Text("Table " + aux[2] + " created successfully\n");
+                        }
+                        if (aux[0].equals("use") || aux[0].equals("USE")){
+                            ref.text = new Text("Execute successfully\n");
+                        }
+                        if (aux[0].equals("update") || aux[0].equals("UPDATE")){
+                            ref.text = new Text("Update register successfully\n");
+                        }
+                        if (aux[0].equals("delete") || aux[0].equals("DELETE")){
+                            ref.text = new Text("Register delete successfully\n");
+                        }
+                        ref.text.setFill(Color.rgb(44,168,84));
+                        ref.text.setFont(new Font("Arial Narrow",17));
+                        Platform.runLater(() -> {
+                            OutPut.getChildren().add(ref.text);
+                            OutPut.setPadding(new Insets(15));
+                        });
+                        Thread.sleep(1000);
+                    }
+                    Platform.runLater(() -> {
+                        treeView.setRoot(null);
+                        manager = null;
+                        databases = null;
+                        tables = null;
+                        fields = null;
+                        getDatabaseMySQL();
+                        manager.setExpanded(true);
+                    });
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }).start();
         });
     }
 }
