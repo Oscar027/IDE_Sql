@@ -65,9 +65,7 @@
 }
 .menu-item{
     /*-fx-border-color: #DDDEE2 transparent #B9C0C8 transparent;*/
-
     /*-fx-border-width:0.50px;*/
-
 }
 .menu-item:focused {
 /*-fx-background: -fx-accent;*/
