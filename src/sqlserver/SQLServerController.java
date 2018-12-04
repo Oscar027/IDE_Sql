@@ -48,7 +48,8 @@ public class SQLServerController implements Initializable {
             toConnection.setUser(User.getText());
             toConnection.setPassword(Password.getText());
             toConnection.setHost(Host.getText());
-            principalController.getDatabaseSQLServer("SQL Server",principalController.sqlserver);
+            principalController.setConnectSQLServer();
+            principalController.getDatabaseSQLServer();
             OK.getScene().getWindow().hide();
         });
     }
