@@ -1,5 +1,6 @@
 package principal;
 
+import com.sun.jdi.Value;
 import connection.FXConnection;
 import connection.FXConnectionMySQL;
 import connection.FXConnectionOracle;
@@ -10,6 +11,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -82,6 +84,7 @@ public class PrincipalController implements Initializable {
     private TextFlow OutPut = new TextFlow();
 
 
+
     //Resaltado de Sintaxis
 
     //Arreglo de prueba con keywords quemadas
@@ -92,17 +95,25 @@ public class PrincipalController implements Initializable {
             "INTO","VALUES","VALUE","SET","USE","PRIMARY","KEY","NULL","INT","VARCHAR","TEXT","ENUM","DATE","DATETIME","AUTO_INCREMENT","REFERENCES","ENGINE","INNODB","MYISAM","TIME"
 
 };
+    private  static final  String[] SINTAXERROR = new String[]{
+      "unerror"
+    };
 
     private static final String MODELO_KEYWORD = "\\b(" + String.join("|",KEYWORDS_PRUEBA) + ")\\b";
     private static final String MODELO_PUNTO_COMA = "\\;";
     private static final String MODELO_COMENTARIO = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
-    private static final String MODELO_COMILLAS = "(\\')([a-zA-Z0-9]+)(\\')";
+    private static final String MODELO_COMILLAS = "(\\')([a-zA-Z0-9]*)(\\')";
+    private static final String MODELO_NUMEROS = "[0-9]+";
+    private static final String MODELO_ERROR = "\\b(" + String.join("|",SINTAXERROR) + ")\\b";
 
     private static final Pattern MODELO = Pattern.compile(
             "(?<KEYWORD>" + MODELO_KEYWORD + ")"
                     + "|(?<PUNTOCOMA>" + MODELO_PUNTO_COMA + ")"
                     + "|(?<COMENTARIO>" + MODELO_COMENTARIO + ")"
                     + "|(?<COMILLAS>" + MODELO_COMILLAS + ")"
+                    + "|(?<NUMEROS>" + MODELO_NUMEROS + ")"
+                    + "|(?<ERROR>" + MODELO_ERROR + ")"
+
     );
 
     private CodeArea codeArea;
@@ -155,6 +166,25 @@ public class PrincipalController implements Initializable {
         ExecuteBlockStmt();
         SPaux.setContent(OutPut);
         DisconnectInstance();
+        menuContextoLog();
+
+        //codeArea.getCaretPosition();
+
+
+        //SPaux.setContextMenu();
+       // OutPut.setOnContextMenuRequested();
+    }
+
+    private void menuContextoLog(){
+        ContextMenu contex = new ContextMenu();
+        MenuItem item1 = new MenuItem("Limpiar");
+        contex.getItems().addAll(item1);
+        SPaux.setContextMenu(contex);
+
+        item1.setOnAction(event -> {
+            OutPut.getChildren().clear();
+        });
+
     }
 
     private void DisconnectInstance(){
@@ -399,17 +429,10 @@ public class PrincipalController implements Initializable {
                 })
                 .subscribe(this::applyHighlighting);
 
-
-        //stackEditor.getStylesheets().add(getClass().getResource("../resources/styles/keywords.css").toExternalForm());
-        //stackEditor.getChildren().addAll(codeArea);
         Scene scene = new Scene(new StackPane(new VirtualizedScrollPane<>(codeArea)));
-      //  VirtualizedScrollPane virtualizedScrollPane = new VirtualizedScrollPane(codeArea);
-     //   Scene scene = new Scene(new StackPane(new ScrollBar<>(codeArea)));
         stackEditor.getStylesheets().add(getClass().getResource("../resources/styles/keywords.css").toExternalForm());
         stackEditor.getChildren().addAll(scene.getRoot());
-       // stackEditor.getChildren().addAll(codeArea);
 
-       // codeArea.setOnContextMenuRequested();
     }
 
     //Calculando el resaltado asincrono
@@ -442,6 +465,8 @@ public class PrincipalController implements Initializable {
                                    matcher.group("PUNTOCOMA") != null ? "punto_coma" :
                                         matcher.group("COMENTARIO") != null ? "comentarios" :
                                                 matcher.group("COMILLAS") != null ? "comillas":
+                                                        matcher.group("NUMEROS") != null  ? "numeros":
+                                                                matcher.group("ERROR") != null  ? "error":
                                                 null; /* no pasa */ assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
@@ -538,7 +563,7 @@ public class PrincipalController implements Initializable {
             toExecute();
         });
     }
-
+//////////////////////////////////////////////
     private void ExecuteBlockStmt(){
         ExecuteBlock.setOnMouseClicked(event -> {
             String aux = codeArea.getText();

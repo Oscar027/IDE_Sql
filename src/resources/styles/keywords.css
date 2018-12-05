@@ -26,11 +26,9 @@
 /* area del editor */
 #codeArea{
     -fx-background-color: #2b2b2b;
+    -fx-display-caret: red;
 }
-/*sombreado de linea actual*/
-/*.paragraph-box:has-caret {
-    -fx-background-color: lightblue;
-}*/
+
 /* numero de linea*/
 .lineno{
     -fx-font-family: "Arial Narrow";
@@ -54,8 +52,20 @@
 
 .virtualized-scroll-pane{
     -fx-background-color: #2b2b2b;
-
 }
 
-
-
+.numeros{
+    -fx-fill: red;
+}
+.error{
+    -rtfx-underline-color: red;
+    -rtfx-underline-dash-array: 4 4;
+    -rtfx-underline-width: 2;
+    -rtfx-underline-cap: butt;
+}
+.caret{
+    -fx-stroke: red;
+}
+#codeArea .selection{
+    -fx-fill: red;
+}
