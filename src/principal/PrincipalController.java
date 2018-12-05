@@ -168,11 +168,6 @@ public class PrincipalController implements Initializable {
         DisconnectInstance();
         menuContextoLog();
 
-        //codeArea.getCaretPosition();
-
-
-        //SPaux.setContextMenu();
-       // OutPut.setOnContextMenuRequested();
     }
 
     private void menuContextoLog(){
