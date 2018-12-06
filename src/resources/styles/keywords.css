@@ -1,10 +1,13 @@
+@font-face {
+    -fx-font-family: "Hack";
+}
 /* Posible color para texto entre comillas simples #607845*/
 
 
 /* Texto en general  */
 .text {
-    -fx-font-family: 'Helvetica', Arial, sans-serif;
-    -fx-font-size: 17px;
+    -fx-font-family: "Hack", Arial, sans-serif;
+    -fx-font-size: 10pt;
     -fx-text-fill: #afb1b3;
     -fx-fill: #afb1b3;
 }

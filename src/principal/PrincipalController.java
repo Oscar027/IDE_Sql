@@ -1,5 +1,8 @@
 package principal;
 
+import com.jhonyrg.dev.parser.Parser;
+import com.jhonyrg.dev.parser.ParserCallback;
+import com.jhonyrg.dev.parser.sym;
 import com.sun.jdi.Value;
 import connection.FXConnection;
 import connection.FXConnectionMySQL;
@@ -40,21 +43,46 @@ import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
 import resources.classes.toConnection;
+import scanner.LexerCallback;
+import scanner.TokenData;
 import sqlserver.SQLServerController;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PrincipalController implements Initializable {
+public class PrincipalController implements Initializable, ParserCallback, LexerCallback {
+    /**Declaraciones*/
+    //Instancia del Parser
+    private Parser parser;
 
+    //Listas
+    private static List<String> tkKeywords;
+    private static List<String> tkIdentifiers;
+    private static List<String> tkSymbols;
+    private static List<String> tkStrings;
+    private static List<String> tkNumbers;
+    private static List<String> tkErrors;
+
+    //Encode
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final Charset ISO = Charset.forName("ISO-8859-1");
+
+    //Logger
+    private Logger log = Logger.getLogger(getClass().getName());
+
+    //Controles
     private int FLAG = 27;
 
     @FXML
@@ -65,6 +93,9 @@ public class PrincipalController implements Initializable {
 
     @FXML
     private MenuItem toMySQL, toSQLServer, toOracle;
+
+    @FXML
+    private ImageView imgvRun;
 
     @FXML
     private MenuItem OpenFile, SaveFile;
@@ -101,7 +132,10 @@ public class PrincipalController implements Initializable {
 
     private static final String MODELO_KEYWORD = "\\b(" + String.join("|",KEYWORDS_PRUEBA) + ")\\b";
     private static final String MODELO_PUNTO_COMA = "\\;";
+    private static final String MODELO_SYMBOL = "\\;"+ "\\(" + "\\)";
     private static final String MODELO_COMENTARIO = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
+
+    private static Pattern PATTERN_EDITOR;
     private static final String MODELO_COMILLAS = "(\\')([a-zA-Z0-9]*)(\\')";
     private static final String MODELO_NUMEROS = "[0-9]+";
     private static final String MODELO_ERROR = "\\b(" + String.join("|",SINTAXERROR) + ")\\b";
@@ -156,9 +190,12 @@ public class PrincipalController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         controller = this;
         starPrincipal();
+        editorSQL();
+        this.init();
         ConnectMySQL();
         ConnectSQLServer();
         ConnectOracle();
+
         editorSQL();
         OpenFile();
         SaveFile();
@@ -218,6 +255,40 @@ public class PrincipalController implements Initializable {
         fade.setToValue(1);
         fade.setNode(BorderPane_principal);
         fade.play();*/
+    }
+
+    /**Funcion para inicializar los eventos de los controles y listener*/
+    private void init(){
+        //Setea el evento clic del mouse al "boton" Run
+        /*this.imgvRun.setOnMouseClicked(event -> {
+            if(codeArea != null){
+                //System.out.println("Click");
+                if(!codeArea.getText().isEmpty())
+                    setSourceParser(codeArea.getText());
+            }
+        });*/
+
+        //Inicializando analizador
+        this.parser = new Parser(this);
+        this.parser.setParserCallback(this);
+
+        //Inicializando Listas
+        tkKeywords = new ArrayList<>();
+        tkIdentifiers = new ArrayList<>();
+        tkSymbols = new ArrayList<>();
+        tkStrings = new ArrayList<>();
+        tkNumbers = new ArrayList<>();
+        tkErrors = new ArrayList<>();
+
+        //Asignando evento
+        //this.codeArea.setOnKeyTyped(event -> setSourceParser(codeArea.getText()));
+    }
+
+    public void getDatabaseMySQL(String db, Image image) {
+        TreeItem manager = new TreeItem<>(db, new ImageView(image));
+        FXConnection connection = new FXConnectionMySQL();
+        connection.setData(toConnection.getUser(), toConnection.getPassword());
+        connection.Connect();
     }
 
     public void setConnectMySQL(){
@@ -411,6 +482,7 @@ public class PrincipalController implements Initializable {
         codeArea.setId("codeArea");
 
         Subscription cleanupWhenDone = codeArea.multiPlainChanges()
+                .successionEnds(java.time.Duration.ofMillis(100))
                 .successionEnds(java.time.Duration.ofMillis(10))
                 .supplyTask(this::computeHighlightingAsync)
                 .awaitLatest(codeArea.multiPlainChanges())
@@ -432,7 +504,10 @@ public class PrincipalController implements Initializable {
 
     //Calculando el resaltado asincrono
     private Task<StyleSpans<Collection<String>>> computeHighlightingAsync() {
-        String text = codeArea.getText();
+        //String text = codeArea.getText();
+        byte []mbByteBuffer = codeArea.getText().getBytes(StandardCharsets.UTF_8);
+        String text = new String(mbByteBuffer, StandardCharsets.UTF_8);
+        this.setSourceParser(codeArea.getText());
         Task<StyleSpans<Collection<String>>> task = new Task<StyleSpans<Collection<String>>>() {
             @Override
             protected StyleSpans<Collection<String>> call() throws Exception {
@@ -444,20 +519,21 @@ public class PrincipalController implements Initializable {
 
     }
 
-    //aplicando el resaltado
+    //Aplicando el resaltado de keywords, entre otros
     private void applyHighlighting(StyleSpans<Collection<String>> highlighting) {
        codeArea.setStyleSpans(0, highlighting);
 
     }
 
+    /**Highlighting*/
     private static StyleSpans<Collection<String>> computeHighlighting(String text) {
 
-        Matcher matcher = MODELO.matcher(text);
+        Matcher matcher = getPattern().matcher(text);
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
         while(matcher.find()) {
             String styleClass = matcher.group("KEYWORD") != null ? "keyword" :
-                                   matcher.group("PUNTOCOMA") != null ? "punto_coma" :
+                                   matcher.group("SYMBOL") != null ? "simbolo" :
                                         matcher.group("COMENTARIO") != null ? "comentarios" :
                                                 matcher.group("COMILLAS") != null ? "comillas":
                                                         matcher.group("NUMEROS") != null  ? "numeros":
@@ -469,6 +545,105 @@ public class PrincipalController implements Initializable {
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
         return spansBuilder.create();
+    }
+
+    /**Función para crear el patron para el Highlighting*/
+    private static Pattern getPattern(){
+        PATTERN_EDITOR = Pattern.compile(
+                "(?<KEYWORD>" + "\\b(" + String.join("|", tkKeywords) + ")\\b" + ")"
+                        + "|(?<SYMBOL>" + String.join("|", tkSymbols) + ")"
+                        + "|(?<COMENTARIO>" + MODELO_COMENTARIO + ")"
+                        + "|(?<COMILLAS>" + String.join("|", tkStrings) + ")"
+                        + "|(?<NUMEROS>" + String.join("|", tkNumbers) + ")"
+                        + "|(?<ERROR>" + String.join("|", tkErrors) + ")"
+        );
+        return PATTERN_EDITOR;
+    }
+
+    /**Funcion para setear el texto de entrada al parser y ejecutarlo*/
+    private void setSourceParser(String sqlText){
+        try {
+            tkKeywords.clear();
+            tkSymbols.clear();
+            tkStrings.clear();
+            tkNumbers.clear();
+            tkErrors.clear();
+            this.parser.continueRead(sqlText);
+            this.parser.parse();
+            log.log(Level.INFO, "re-loaded Parser");
+        } catch (Exception ex) {
+            log.log(Level.SEVERE, ex.getMessage());
+        }
+    }
+
+    /**Metodo sobrescrito del listener del Parser
+     * Metodo para escuchar a traves del callback cuando el Parser envie un RESULT*/
+    @Override
+    public void onParserResult(scanner.TokenData token) {
+        log.log(Level.INFO, "Escuchando al Parser");
+    }
+
+    /**Metodo sobrescrito del listener del Lexer
+     * Metodo para escuchar a traves del callback cuando el Lexer envie un Token*/
+    @Override
+    public void onTokenFound(TokenData token) {
+        log.log(Level.INFO, "Escuchando al Lexer");
+        switch (token.getType()) {
+            case sym.KEYWORD:
+                if (!tkKeywords.contains(token.getLexeme())) {
+                    tkKeywords.add(token.getLexeme());
+                    log.log(Level.INFO, "Keyword added"  + token.getLexeme());
+                }
+                break;
+
+            case sym.IDENTIFIER:
+                if (!tkIdentifiers.contains(token.getLexeme())) {
+                    tkIdentifiers.add(token.getLexeme());
+                    log.log(Level.INFO, "Identifier added"  + token.getLexeme());
+                }
+                break;
+
+            case sym.SYMBOL:
+                if (!tkSymbols.contains(token.getLexeme())) {
+                    switch (token.getLexeme()) {
+                        case "(":
+                            tkSymbols.add("\\(");
+                            break;
+                        case ")":
+                            tkSymbols.add("\\)");
+                            break;
+                        default:
+                            tkSymbols.add(token.getLexeme());
+                    }
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
+                }
+                break;
+
+            case sym.STRING:
+                if (!tkStrings.contains(token.getLexeme())) {
+                    tkStrings.add(token.getLexeme());
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
+                }
+                break;
+
+            case sym.NUMBER:
+                if (!tkNumbers.contains(token.getLexeme())) {
+                    tkNumbers.add(token.getLexeme());
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
+                }
+                break;
+
+            case sym.error:
+                if (!tkErrors.contains(token.getLexeme())) {
+                    tkErrors.add(token.getLexeme());
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
+                }
+                break;
+
+            default:
+                log.log(Level.INFO, "Token Found" + token.getLexeme());
+                break;
+        }
     }
 
     private void OpenFile(){

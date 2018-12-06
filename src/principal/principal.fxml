@@ -189,12 +189,12 @@
             <BorderPane fx:id="paneleft" maxHeight="30.0" minHeight="30.0" prefHeight="30.0" prefWidth="300.0" stylesheets="@../resources/styles/Stylesheet.css" BorderPane.alignment="CENTER">
                <center>
                   <MenuBar prefHeight="28.0" prefWidth="346.0" style="-fx-background-color: #3c3f41;" BorderPane.alignment="CENTER">
-                    <menus>
-                      <Menu mnemonicParsing="false" text="Database">
-                        <items>
+                     <menus>
+                        <Menu mnemonicParsing="false" text="Database">
+                           <items>
                               <Menu mnemonicParsing="false" text="New connection">
-                                <items>
-                                  <MenuItem fx:id="toMySQL" mnemonicParsing="false" text="MySQL">
+                                 <items>
+                                    <MenuItem fx:id="toMySQL" mnemonicParsing="false" text="MySQL">
                                        <graphic>
                                           <ImageView fitHeight="20.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                              <image>
@@ -221,7 +221,7 @@
                                           </ImageView>
                                        </graphic>
                                     </MenuItem>
-                                </items>
+                                 </items>
                                  <graphic>
                                     <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
@@ -230,7 +230,7 @@
                                     </ImageView>
                                  </graphic>
                               </Menu>
-                        </items>
+                           </items>
                            <graphic>
                               <ImageView fitHeight="17.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
@@ -238,8 +238,8 @@
                                  </image>
                               </ImageView>
                            </graphic>
-                      </Menu>
-                    </menus>
+                        </Menu>
+                     </menus>
                   </MenuBar>
                </center>
                <right>
@@ -288,22 +288,22 @@
          </right>
          <center>
             <TabPane prefHeight="200.0" prefWidth="200.0" stylesheets="@../resources/styles/Stylesheet.css" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-              <tabs>
-                <Tab text="Logs">
-                  <content>
+               <tabs>
+                  <Tab text="Logs">
+                     <content>
                         <ScrollPane fx:id="SPaux" stylesheets="@../resources/styles/Stylesheet.css" />
-                  </content>
-                </Tab>
-                <Tab text="Results">
-                  <content>
+                     </content>
+                  </Tab>
+                  <Tab text="Results">
+                     <content>
                         <BorderPane>
                            <center>
                               <TableView fx:id="TVresult" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
                            </center>
                         </BorderPane>
-                  </content>
-                </Tab>
-              </tabs>
+                     </content>
+                  </Tab>
+               </tabs>
             </TabPane>
          </center>
       </BorderPane>
