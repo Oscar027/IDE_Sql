@@ -33,13 +33,17 @@ public class MySQLController implements Initializable {
         Host.setText("localhost");
         Port.setText("3306");
         URL.setText("jdbc:mysql://localhost:3306");
+        Host.setEditable(false);
+        Port.setEditable(false);
+        URL.setEditable(false);
         User.requestFocus();
         OK.setOnAction(event -> {
             toConnection.setUser(User.getText());
             toConnection.setPassword(Password.getText());
             toConnection.setHost(Host.getText());
             toConnection.setPort(Port.getText());
-            principalController.getDatabaseMySQL("MySQL",principalController.mysql);
+            principalController.setConnectMySQL();
+            principalController.getDatabaseMySQL();
             OK.getScene().getWindow().hide();
         });
     }

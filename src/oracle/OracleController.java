@@ -39,6 +39,7 @@ public class OracleController implements Initializable {
             toConnection.setPassword(Password.getText());
             toConnection.setHost(Host.getText());
             toConnection.setPort(Port.getText());
+            principalController.setConnectOracle();
             principalController.getDatabaseOracle("Oracle",principalController.oracle);
             OK.getScene().getWindow().hide();
         });

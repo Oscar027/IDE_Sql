@@ -1,6 +1,9 @@
 @font-face {
     -fx-font-family: "Hack";
 }
+/* Posible color para texto entre comillas simples #607845*/
+
+
 /* Texto en general  */
 .text {
     -fx-font-family: "Hack", Arial, sans-serif;
@@ -26,16 +29,46 @@
 /* area del editor */
 #codeArea{
     -fx-background-color: #2b2b2b;
+    -fx-display-caret: red;
 }
-/*sombreado de linea actual*/
-/*.paragraph-box:has-caret {
-    -fx-background-color: lightblue;
-}*/
+
 /* numero de linea*/
 .lineno{
-   -fx-font-size: 12px;
-   -fx-background-color: #313335;
-   -fx-text-fill: #afb1b3;
+    -fx-font-family: "Arial Narrow";
+    -fx-background-color: #313335;
+    -fx-text-fill: #48595c;
+    -fx-pref-width: 70px;
+    /*-fx-text-alignment: CENTER;*/
+    -fx-alignment: CENTER;
  }
 
+.lineno .text{
+    -fx-font-family: "Arial Narrow";
+    -fx-font-size: 12px;
+    -fx-background-color: #313335;
+    -fx-text-fill: #48595c;
+    -fx-pref-width: 70px;
+}
+.comillas{
+    -fx-fill: #92c157;
+}
 
+.virtualized-scroll-pane{
+    -fx-background-color: #2b2b2b;
+}
+
+.numeros{
+    -fx-fill: #315490;
+}
+.error{
+    -rtfx-underline-color: #973a38;
+    -rtfx-underline-dash-array: 4px 4px;
+    -rtfx-underline-width: 3px;
+    -rtfx-underline-cap: square;
+}
+.caret{
+    -fx-stroke: #bbbbbb;
+}
+#codeArea .selection{
+    -fx-fill: #4b6eaf;
+}

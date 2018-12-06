@@ -4,8 +4,12 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -14,9 +18,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.TextFlow?>
 
 <BorderPane fx:id="BorderPane_principal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="827.0" prefWidth="1301.0" style="-fx-background-color: #3c3f41;" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="principal.PrincipalController">
+<BorderPane fx:id="BorderPane_principal" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="827.0" prefWidth="1301.0" style="-fx-background-color: #3c3f41;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="principal.PrincipalController">
    <top>
       <BorderPane prefHeight="30.0" prefWidth="1301.0" BorderPane.alignment="CENTER">
          <top>
@@ -33,7 +37,7 @@
                               </ImageView>
                            </graphic>
                         </MenuItem>
-                        <MenuItem mnemonicParsing="false" text="Open File">
+                        <MenuItem fx:id="OpenFile" mnemonicParsing="false" text="Open File">
                            <graphic>
                               <ImageView fitHeight="17.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
@@ -42,7 +46,7 @@
                               </ImageView>
                            </graphic>
                         </MenuItem>
-                        <MenuItem mnemonicParsing="false" text="Save">
+                        <MenuItem fx:id="SaveFile" mnemonicParsing="false" text="Save">
                            <graphic>
                               <ImageView fitHeight="17.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
@@ -51,7 +55,7 @@
                               </ImageView>
                            </graphic>
                         </MenuItem>
-                        <MenuItem mnemonicParsing="false" text="Save As">
+                        <MenuItem fx:id="SaveFileAs" mnemonicParsing="false" text="Save As">
                            <graphic>
                               <ImageView fitHeight="17.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
@@ -61,7 +65,17 @@
                            </graphic>
                         </MenuItem>
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Exit" />
+                        <MenuItem fx:id="disconnectDB" mnemonicParsing="false" text="Disconnect">
+                           <graphic>
+                              <ImageView fitHeight="17.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../resources/images/disconnect.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </MenuItem>
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="Exit" mnemonicParsing="false" text="Exit" />
                      </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Edit">
@@ -145,20 +159,21 @@
                   <BorderPane fx:id="PaneButtons" maxHeight="30.0" maxWidth="100.0" minHeight="30.0" minWidth="100.0" prefHeight="30.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                      <left>
                         <ImageView fx:id="imgvRun" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                        <ImageView fx:id="ExecuteAll" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                            <image>
                               <Image url="@../resources/images/run.png" />
                            </image>
                         </ImageView>
                      </left>
                      <center>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                        <ImageView fx:id="ExecuteBlock" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                            <image>
                               <Image url="@../resources/images/run_block.png" />
                            </image>
                         </ImageView>
                      </center>
                      <right>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                        <ImageView fx:id="CleanAndBeauty" fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                            <image>
                               <Image url="@../resources/images/clean.png" />
                            </image>
@@ -270,12 +285,29 @@
                </children>
             </AnchorPane>
          </top>
-         <center>
-            <TextFlow prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #2b2b2b;" BorderPane.alignment="CENTER" />
-         </center>
          <right>
             <AnchorPane fx:id="paneleft" prefHeight="200.0" prefWidth="30.0" stylesheets="@../resources/styles/Stylesheet.css" BorderPane.alignment="CENTER" />
          </right>
+         <center>
+            <TabPane prefHeight="200.0" prefWidth="200.0" stylesheets="@../resources/styles/Stylesheet.css" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+              <tabs>
+                <Tab text="Logs">
+                  <content>
+                        <ScrollPane fx:id="SPaux" stylesheets="@../resources/styles/Stylesheet.css" />
+                  </content>
+                </Tab>
+                <Tab text="Results">
+                  <content>
+                        <BorderPane>
+                           <center>
+                              <TableView fx:id="TVresult" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                           </center>
+                        </BorderPane>
+                  </content>
+                </Tab>
+              </tabs>
+            </TabPane>
+         </center>
       </BorderPane>
    </bottom>
    <right>
