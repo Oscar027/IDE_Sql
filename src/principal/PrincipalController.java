@@ -91,6 +91,7 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
 
     private static final String MODELO_KEYWORD = "\\b(" + String.join("|",KEYWORDS_PRUEBA) + ")\\b";
     private static final String MODELO_PUNTO_COMA = "\\;";
+    private static final String MODELO_SYMBOL = "\\;"+ "\\(" + "\\)";
     private static final String MODELO_COMENTARIO = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
 
     private static Pattern PATTERN_EDITOR;
@@ -408,7 +409,7 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
         return spansBuilder.create();
     }
 
-    /**Funcion para crear el patron para el Highlighting*/
+    /**Función para crear el patron para el Highlighting*/
     private static Pattern getPattern(){
         PATTERN_EDITOR = Pattern.compile(
                 "(?<KEYWORD>" + "\\b(" + String.join("|", tkKeywords) + ")\\b" + ")"
@@ -437,28 +438,37 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
     }
 
     /**Metodo sobrescrito del listener del Lexer
-     * Metodo para escuchar a traves del callback cuando el Lexer envie un RESULT*/
+     * Metodo para escuchar a traves del callback cuando el Lexer envie un Token*/
     @Override
     public void onTokenFound(TokenData token) {
         log.log(Level.INFO, "Escuchando al Lexer");
         switch (token.getType()){
-            case sym.keyword:
+            case sym.KEYWORD:
             if(!tkKeywords.contains(token.getLexeme())){
               tkKeywords.add(token.getLexeme());
               log.log(Level.INFO, "Keyword added");
             }
             break;
 
-          case sym.identifier:
+          case sym.IDENTIFIER:
             if(!tkIdentifiers.contains(token.getLexeme())){
               tkIdentifiers.add(token.getLexeme());
               log.log(Level.INFO, "Identifier added");
             }
             break;
 
-          case sym.symbol:
+          case sym.SYMBOL:
             if(!tkSymbols.contains(token.getLexeme())){
-              tkSymbols.add(token.getLexeme());
+              switch (token.getLexeme()){
+                  case "(":
+                      tkSymbols.add("\\(");
+                      break;
+                  case ")":
+                      tkSymbols.add("\\)");
+                      break;
+                  default:
+                      tkSymbols.add(token.getLexeme());
+              }
               log.log(Level.INFO, "Symbol added");
             }
             break;
