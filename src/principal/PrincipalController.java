@@ -93,6 +93,8 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
 
     @FXML
     private ImageView imgvRun;
+
+    @FXML
     private MenuItem OpenFile, SaveFile;
 
     @FXML
@@ -255,13 +257,13 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
     /**Funcion para inicializar los eventos de los controles y listener*/
     private void init(){
         //Setea el evento clic del mouse al "boton" Run
-        this.imgvRun.setOnMouseClicked(event -> {
+        /*this.imgvRun.setOnMouseClicked(event -> {
             if(codeArea != null){
                 //System.out.println("Click");
                 if(!codeArea.getText().isEmpty())
                     setSourceParser(codeArea.getText());
             }
-        });
+        });*/
 
         //Inicializando analizador
         this.parser = new Parser(this);
@@ -276,11 +278,13 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
         //this.codeArea.setOnKeyTyped(event -> setSourceParser(codeArea.getText()));
     }
 
-    public void getDatabaseMySQL(String db, Image image){
+    public void getDatabaseMySQL(String db, Image image) {
         TreeItem manager = new TreeItem<>(db, new ImageView(image));
         FXConnection connection = new FXConnectionMySQL();
-        connection.setData(toConnection.getUser(),toConnection.getPassword());
+        connection.setData(toConnection.getUser(), toConnection.getPassword());
         connection.Connect();
+    }
+
     public void setConnectMySQL(){
         FLAG = 1;
         connectionMySQL.setData(toConnection.getUser(),toConnection.getPassword());
@@ -570,40 +574,43 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
     @Override
     public void onTokenFound(TokenData token) {
         log.log(Level.INFO, "Escuchando al Lexer");
-        switch (token.getType()){
+        switch (token.getType()) {
             case sym.KEYWORD:
-            if(!tkKeywords.contains(token.getLexeme())){
-              tkKeywords.add(token.getLexeme());
-              log.log(Level.INFO, "Keyword added");
-            }
-            break;
+                if (!tkKeywords.contains(token.getLexeme())) {
+                    tkKeywords.add(token.getLexeme());
+                    log.log(Level.INFO, "Keyword added");
+                }
+                break;
 
-          case sym.IDENTIFIER:
-            if(!tkIdentifiers.contains(token.getLexeme())){
-              tkIdentifiers.add(token.getLexeme());
-              log.log(Level.INFO, "Identifier added");
-            }
-            break;
+            case sym.IDENTIFIER:
+                if (!tkIdentifiers.contains(token.getLexeme())) {
+                    tkIdentifiers.add(token.getLexeme());
+                    log.log(Level.INFO, "Identifier added");
+                }
+                break;
 
-          case sym.SYMBOL:
-            if(!tkSymbols.contains(token.getLexeme())){
-              switch (token.getLexeme()){
-                  case "(":
-                      tkSymbols.add("\\(");
-                      break;
-                  case ")":
-                      tkSymbols.add("\\)");
-                      break;
-                  default:
-                      tkSymbols.add(token.getLexeme());
-              }
-              log.log(Level.INFO, "Symbol added");
-            }
-            break;
+            case sym.SYMBOL:
+                if (!tkSymbols.contains(token.getLexeme())) {
+                    switch (token.getLexeme()) {
+                        case "(":
+                            tkSymbols.add("\\(");
+                            break;
+                        case ")":
+                            tkSymbols.add("\\)");
+                            break;
+                        default:
+                            tkSymbols.add(token.getLexeme());
+                    }
+                    log.log(Level.INFO, "Symbol added");
+                }
+                break;
 
-          default:
-            log.log(Level.INFO, "Token Found");
-            break;
+            default:
+                log.log(Level.INFO, "Token Found");
+                break;
+        }
+    }
+
     private void OpenFile(){
         OpenFile.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
