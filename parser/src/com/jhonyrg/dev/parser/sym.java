@@ -8,17 +8,119 @@ package com.jhonyrg.dev.parser;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int keyword = 2;
-  public static final int identifier = 3;
-  public static final int error = 1;
-  public static final int symbol = 4;
+  public static final int CASCADE = 53;
+  public static final int PRIMARY_KEY = 15;
+  public static final int CHAR = 27;
+  public static final int IF_NOT_EXIST = 13;
+  public static final int UDP = 39;
+  public static final int INTEGER = 28;
+  public static final int LPAREN = 9;
+  public static final int SEMI = 7;
+  public static final int INS = 24;
+  public static final int ON_UPDATE = 49;
+  public static final int UPDATE = 38;
+  public static final int NOT_NULL = 16;
+  public static final int DELETE = 43;
+  public static final int WHERE = 37;
+  public static final int NO_ACTION = 51;
+  public static final int RPAREN = 10;
+  public static final int ON_DELETE = 50;
+  public static final int AND = 41;
+  public static final int USE = 19;
+  public static final int OR = 42;
+  public static final int REFERENCES = 48;
+  public static final int COMMA = 8;
+  public static final int VARCHAR = 29;
   public static final int EOF = 0;
+  public static final int DECIMAL = 30;
+  public static final int EQUAL = 40;
+  public static final int KEYWORD = 2;
+  public static final int TABLE = 20;
+  public static final int TRUE = 32;
+  public static final int error = 1;
+  public static final int RESTRIC = 52;
+  public static final int SET_DEFAULT = 55;
+  public static final int VALUES = 23;
+  public static final int NULL = 11;
+  public static final int AUTO_INCREMENT = 14;
+  public static final int NUMBER = 5;
+  public static final int SET_NULL = 54;
+  public static final int UNIQUE_KEY = 46;
+  public static final int UNIQUE = 45;
+  public static final int FROM = 44;
+  public static final int NUMBER_DEC = 35;
+  public static final int INTO = 26;
+  public static final int ENUM = 31;
+  public static final int POINT = 12;
+  public static final int ENGINE = 21;
+  public static final int INSERT = 22;
+  public static final int CREATE = 17;
+  public static final int DATABASE = 18;
+  public static final int KEY = 47;
+  public static final int STRING = 6;
+  public static final int SYMBOL = 4;
+  public static final int FALSE = 33;
+  public static final int AS = 25;
+  public static final int SET = 36;
+  public static final int NUMBER_INT = 34;
+  public static final int IDENTIFIER = 3;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
-  "keyword",
-  "identifier",
-  "symbol"
+  "KEYWORD",
+  "IDENTIFIER",
+  "SYMBOL",
+  "NUMBER",
+  "STRING",
+  "SEMI",
+  "COMMA",
+  "LPAREN",
+  "RPAREN",
+  "NULL",
+  "POINT",
+  "IF_NOT_EXIST",
+  "AUTO_INCREMENT",
+  "PRIMARY_KEY",
+  "NOT_NULL",
+  "CREATE",
+  "DATABASE",
+  "USE",
+  "TABLE",
+  "ENGINE",
+  "INSERT",
+  "VALUES",
+  "INS",
+  "AS",
+  "INTO",
+  "CHAR",
+  "INTEGER",
+  "VARCHAR",
+  "DECIMAL",
+  "ENUM",
+  "TRUE",
+  "FALSE",
+  "NUMBER_INT",
+  "NUMBER_DEC",
+  "SET",
+  "WHERE",
+  "UPDATE",
+  "UDP",
+  "EQUAL",
+  "AND",
+  "OR",
+  "DELETE",
+  "FROM",
+  "UNIQUE",
+  "UNIQUE_KEY",
+  "KEY",
+  "REFERENCES",
+  "ON_UPDATE",
+  "ON_DELETE",
+  "NO_ACTION",
+  "RESTRIC",
+  "CASCADE",
+  "SET_NULL",
+  "SET_DEFAULT"
   };
 }
 

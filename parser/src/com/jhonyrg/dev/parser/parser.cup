@@ -78,7 +78,7 @@ import java.util.logging.Logger;
 
     /**Metodos para manejar errores recuperables*/
     public void report_error(String message, Object data){
-        StringBuilder mBuilder = new StringBuilder("-*- Error");
+        StringBuilder mBuilder = new StringBuilder("Error");
 
         if(data instanceof java_cup.runtime.Symbol){
             TokenData tokenData  = ((TokenData) ((java_cup.runtime.Symbol) data).value);
@@ -88,12 +88,12 @@ import java.util.logging.Logger;
                     mBuilder.append(" in line " + tokenData.getLine());
 
                     if(tokenData.getFirstCol() >= 0){
-                        mBuilder.append(", column " + tokenData.getFirstCol());
+                        mBuilder.append(", \"" + tokenData.getLexeme()+"\" unexpected" );
                     }
                 }
 
                 mBuilder.append(": " + message);
-                System.err.println(mBuilder);
+                log.log(Level.SEVERE, mBuilder.toString());
             }
         }
     }
@@ -111,38 +111,136 @@ import java.util.logging.Logger;
         return lexer.next_token();
     :};
 
-    /*Terminals (Tokens returned by scanner)*/
-    //terminal symbol;
-    terminal keyword, identifier, symbol;
+    /**Terminals (Tokens returned by scanner)*/
+    terminal KEYWORD, IDENTIFIER, SYMBOL, NUMBER, STRING;   //token types
+    terminal SEMI, COMMA, LPAREN, RPAREN, NULL, POINT;
+    terminal IF_NOT_EXIST, AUTO_INCREMENT, PRIMARY_KEY, NOT_NULL;
+    terminal CREATE, DATABASE, USE, TABLE, ENGINE, INSERT, VALUES, INS, AS, INTO;
+    terminal CHAR, INTEGER, VARCHAR, DECIMAL, ENUM;                    //add more dataTypes token
+    terminal TRUE, FALSE, NUMBER_INT, NUMBER_DEC;
+    terminal SET, WHERE, UPDATE, UDP, EQUAL, AND, OR, DELETE, FROM;
+    terminal UNIQUE, UNIQUE_KEY, KEY, REFERENCES, ON_UPDATE, ON_DELETE;
+    terminal NO_ACTION, RESTRIC, CASCADE, SET_NULL, SET_DEFAULT;
 
-    /*Non Terminals*/
-    non terminal expr_sql;
-    non terminal expr_create_db_sql, expr_create_db, expr_create_db_keyword;
-    non terminal expr_use_db_sql, expr_keyword_use_db;
+    /**Non Terminals*/
+    non terminal batch;
+    non terminal query, ddlStatement, dmlStatement;
+    non terminal createShemaStatement, createShema;
+    non terminal useShemaStatement;
+    //create table
+    non terminal createTableStatement, table, columnListDef, columnSingleDef;
+    non terminal typeName, expDefVal, stringList, columnAtts, parensName;
+    non terminal referencesAction, onUpdate, onDelete, referenceAction, engine;
+    //insert
+    non terminal insertStatement, insert, columnList, valuesList, insertValues, expr;
+    //update
+    non terminal updateStatement, update, tableName, setClause, singleClause, columnName, conditions;
+    //delete
+    non terminal deleteStatement;
 
-    /*Precedence and Associatively of Terminals*/
+    /**Precedence and Associatively of Terminals*/
 
-    /*Grammar rules*/
-    start with expr_sql;
-    expr_sql                ::= expr_sql expr_create_db_sql | expr_create_db_sql | expr_sql expr_use_db_sql | expr_use_db_sql;
+    /**Grammar rules*/
+    start with batch;
+    batch               ::= batch SEMI | query;
 
-    /*1- create database testDB;*/
-    expr_create_db_sql      ::= expr_create_db symbol
-                            {:System.out.println("La BD ha sido creada.");
-                            :};
-    expr_create_db          ::= expr_create_db_keyword identifier
-                            {:System.out.println("Creando BD...");
-                            :};
-    expr_create_db_keyword  ::= keyword keyword
-                            {:System.out.println("Inciando...");
+    //queries
+    query               ::= ddlStatement | dmlStatement | error query;
+
+    //statements
+    ddlStatement        ::= createShemaStatement SEMI{:
+                                //toCallbackResult(cs);
+                                System.out.println("DB Creada.");
+                            :}
+                            | useShemaStatement SEMI{:
+                                //toCallbackResult(cs);
+                                System.out.println("La DB se ha puesto en uso");
+                            :}
+                            | createTableStatement SEMI{:
+                                System.out.println("La tabla ha sido creada");
                             :};
 
-    /*2- use testDB;*/
-    expr_use_db_sql         ::= expr_keyword_use_db symbol
-                            {:System.out.println("Se ha seleccionado la BD.");
-                            :};
-    expr_keyword_use_db  ::= keyword:kw identifier
-                            {:
-                            toCallbackResult(kw);
-                            System.out.println("Identificando DB...");
-                            :};
+    dmlStatement        ::= insertStatement SEMI
+                            {:System.out.println("Insert successful");:}
+                            | updateStatement SEMI
+                            {:System.out.println("Update successful");:}
+                            | deleteStatement SEMI
+                            {:System.out.println("Delete successful");:};
+
+    //create shema
+    createShemaStatement    ::= createShema IDENTIFIER{:
+                                    System.out.println("Creando DB");
+                                :}
+                                | createShema IF_NOT_EXIST IDENTIFIER;
+    createShema             ::= CREATE DATABASE{:
+                                    System.out.println("Intentando crear DB");
+                                :};
+
+    //use shema
+    useShemaStatement   ::= USE IDENTIFIER ;
+
+    //create table
+    createTableStatement    ::= CREATE table IDENTIFIER LPAREN columnListDef RPAREN engine
+                                | CREATE table IDENTIFIER LPAREN columnListDef RPAREN ;
+    table                   ::= TABLE | TABLE IF_NOT_EXIST ;
+    columnListDef           ::= columnSingleDef
+                                | columnListDef COMMA columnSingleDef
+                                | error columnSingleDef ;
+    columnSingleDef         ::= columnName typeName columnAtts
+                                | columnName typeName;
+    typeName                ::=  VARCHAR
+                                | VARCHAR expDefVal
+                                | DECIMAL expDefVal
+                                | INTEGER expDefVal
+                                | ENUM LPAREN stringList RPAREN
+                                | CHAR expDefVal;               /*add more types*/
+    expDefVal               ::= LPAREN NUMBER_INT RPAREN
+                                | LPAREN NUMBER_INT COMMA NUMBER_INT RPAREN ;/*nothing*/
+    stringList              ::= STRING | stringList COMMA STRING
+                                | error STRING ;
+    columnAtts              ::= columnAtts AUTO_INCREMENT | columnAtts PRIMARY_KEY
+                                | columnAtts NULL | columnAtts NOT_NULL
+                                | columnAtts UNIQUE | columnAtts UNIQUE_KEY
+                                | columnAtts KEY
+                                | columnAtts REFERENCES tableName parensName referencesAction
+                                ;/*nothing*/
+    parensName              ::= LPAREN columnName RPAREN;
+    referencesAction        ::= onUpdate | onDelete
+                                | onUpdate onDelete
+                                | onDelete onUpdate ;
+    onUpdate                ::= ON_UPDATE referenceAction ;
+    onDelete                ::= ON_DELETE referenceAction ;
+    referenceAction         ::= NO_ACTION | RESTRIC | CASCADE
+                                | SET_NULL | SET_DEFAULT ;
+    engine                  ::= ENGINE IDENTIFIER ;/*nothing*/
+
+    //insert
+    insertStatement     ::= insert INTO tableName LPAREN columnList RPAREN VALUES valuesList ;
+    insert              ::= INSERT | INS ;
+    columnList          ::= IDENTIFIER
+                            | columnList COMMA IDENTIFIER
+                            | error IDENTIFIER ;
+    valuesList          ::= LPAREN insertValues RPAREN
+                            | valuesList COMMA LPAREN insertValues RPAREN ;
+    insertValues        ::= expr | insertValues COMMA expr
+                            | error expr ;
+    expr                ::= IDENTIFIER | NUMBER_INT | NUMBER_DEC
+                            | IDENTIFIER POINT IDENTIFIER
+                            | TRUE | FALSE | STRING ;
+
+    //update
+    updateStatement     ::= update tableName SET setClause WHERE conditions ;
+    update              ::= UPDATE | UDP ;
+    tableName           ::= IDENTIFIER | IDENTIFIER IDENTIFIER | IDENTIFIER AS IDENTIFIER ;
+    setClause           ::= singleClause | setClause COMMA singleClause
+                            | error singleClause ;
+    singleClause        ::= columnName EQUAL expr ;
+    columnName          ::=  IDENTIFIER | IDENTIFIER POINT IDENTIFIER ;
+    conditions          ::= singleClause
+                            | conditions AND singleClause
+                            | conditions OR singleClause
+                            ;
+
+    //delete
+    deleteStatement     ::= DELETE FROM tableName WHERE conditions
+                            | DELETE FROM tableName;
