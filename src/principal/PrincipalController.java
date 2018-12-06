@@ -71,6 +71,9 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
     private static List<String> tkKeywords;
     private static List<String> tkIdentifiers;
     private static List<String> tkSymbols;
+    private static List<String> tkStrings;
+    private static List<String> tkNumbers;
+    private static List<String> tkErrors;
 
     //Encode
     private static final Charset UTF_8 = Charset.forName("UTF-8");
@@ -273,6 +276,9 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
         tkKeywords = new ArrayList<>();
         tkIdentifiers = new ArrayList<>();
         tkSymbols = new ArrayList<>();
+        tkStrings = new ArrayList<>();
+        tkNumbers = new ArrayList<>();
+        tkErrors = new ArrayList<>();
 
         //Asignando evento
         //this.codeArea.setOnKeyTyped(event -> setSourceParser(codeArea.getText()));
@@ -547,6 +553,9 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
                 "(?<KEYWORD>" + "\\b(" + String.join("|", tkKeywords) + ")\\b" + ")"
                         + "|(?<SYMBOL>" + String.join("|", tkSymbols) + ")"
                         + "|(?<COMENTARIO>" + MODELO_COMENTARIO + ")"
+                        + "|(?<COMILLAS>" + String.join("|", tkStrings) + ")"
+                        + "|(?<NUMEROS>" + String.join("|", tkNumbers) + ")"
+                        + "|(?<ERROR>" + String.join("|", tkErrors) + ")"
         );
         return PATTERN_EDITOR;
     }
@@ -554,6 +563,11 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
     /**Funcion para setear el texto de entrada al parser y ejecutarlo*/
     private void setSourceParser(String sqlText){
         try {
+            tkKeywords.clear();
+            tkSymbols.clear();
+            tkStrings.clear();
+            tkNumbers.clear();
+            tkErrors.clear();
             this.parser.continueRead(sqlText);
             this.parser.parse();
             log.log(Level.INFO, "re-loaded Parser");
@@ -578,14 +592,14 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
             case sym.KEYWORD:
                 if (!tkKeywords.contains(token.getLexeme())) {
                     tkKeywords.add(token.getLexeme());
-                    log.log(Level.INFO, "Keyword added");
+                    log.log(Level.INFO, "Keyword added"  + token.getLexeme());
                 }
                 break;
 
             case sym.IDENTIFIER:
                 if (!tkIdentifiers.contains(token.getLexeme())) {
                     tkIdentifiers.add(token.getLexeme());
-                    log.log(Level.INFO, "Identifier added");
+                    log.log(Level.INFO, "Identifier added"  + token.getLexeme());
                 }
                 break;
 
@@ -601,12 +615,33 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
                         default:
                             tkSymbols.add(token.getLexeme());
                     }
-                    log.log(Level.INFO, "Symbol added");
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
+                }
+                break;
+
+            case sym.STRING:
+                if (!tkStrings.contains(token.getLexeme())) {
+                    tkStrings.add(token.getLexeme());
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
+                }
+                break;
+
+            case sym.NUMBER:
+                if (!tkNumbers.contains(token.getLexeme())) {
+                    tkNumbers.add(token.getLexeme());
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
+                }
+                break;
+
+            case sym.error:
+                if (!tkErrors.contains(token.getLexeme())) {
+                    tkErrors.add(token.getLexeme());
+                    log.log(Level.INFO, "Symbol added" + token.getLexeme());
                 }
                 break;
 
             default:
-                log.log(Level.INFO, "Token Found");
+                log.log(Level.INFO, "Token Found" + token.getLexeme());
                 break;
         }
     }
