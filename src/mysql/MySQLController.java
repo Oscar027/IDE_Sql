@@ -36,15 +36,20 @@ public class MySQLController implements Initializable {
         Host.setEditable(false);
         Port.setEditable(false);
         URL.setEditable(false);
-        User.requestFocus();
+        Database.setEditable(false);
         OK.setOnAction(event -> {
             toConnection.setUser(User.getText());
             toConnection.setPassword(Password.getText());
             toConnection.setHost(Host.getText());
             toConnection.setPort(Port.getText());
             principalController.setConnectMySQL();
-            principalController.getDatabaseMySQL();
-            OK.getScene().getWindow().hide();
+            if (principalController.connectionMySQL.getConnection() != null) {
+                principalController.getDatabaseMySQL();
+                OK.getScene().getWindow().hide();
+            }
+            else {
+                Password.requestFocus();
+            }
         });
     }
 

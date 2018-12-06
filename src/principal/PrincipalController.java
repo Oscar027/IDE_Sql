@@ -174,9 +174,9 @@ public class PrincipalController implements Initializable, ParserCallback, Lexer
 
     //private MenuItem menuItem = new MenuItem("Disconnect",new ImageView(close));
 
-    private FXConnection connectionMySQL = new FXConnectionMySQL();
+    public FXConnection connectionMySQL = new FXConnectionMySQL();
 
-    private FXConnection connectionSQLServer = new FXConnectionSQLServer();
+    public FXConnection connectionSQLServer = new FXConnectionSQLServer();
 
     private FXConnection connectionOracle = new FXConnectionOracle();
 

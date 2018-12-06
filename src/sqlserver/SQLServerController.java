@@ -35,6 +35,8 @@ public class SQLServerController implements Initializable {
         User.setEditable(false);
         Password.setEditable(false);
         URL.setText("jdbc:sqlserver://localhost;");
+        Host.setEditable(false);
+        URL.setEditable(false);
         CmbTypeConnection.setOnAction(event ->{
             if (CmbTypeConnection.getSelectionModel().getSelectedItem().toString().equals("SQL Server Authentication")){
                 User.setEditable(true);
@@ -49,8 +51,13 @@ public class SQLServerController implements Initializable {
             toConnection.setPassword(Password.getText());
             toConnection.setHost(Host.getText());
             principalController.setConnectSQLServer();
-            principalController.getDatabaseSQLServer();
-            OK.getScene().getWindow().hide();
+            if (principalController.connectionSQLServer.getConnection() != null) {
+                principalController.getDatabaseSQLServer();
+                OK.getScene().getWindow().hide();
+            }
+            else {
+                Password.requestFocus();
+            }
         });
     }
 
