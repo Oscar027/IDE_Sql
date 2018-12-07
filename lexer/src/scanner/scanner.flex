@@ -64,7 +64,7 @@ White = [\ \t\r\n]+ | \r|\n|\r\n
 ("char" | "CHAR")                   {return token(sym.KEYWORD, sym.CHAR);}
 ("int" | "INT")                     {return token(sym.KEYWORD, sym.INTEGER);}
 ("varchar" | "VARCHAR")             {return token(sym.KEYWORD, sym.VARCHAR);}
-("auto increment" | "AUTO INCREMENT") {return token(sym.KEYWORD, sym.AUTO_INCREMENT);}
+("auto_increment" | "AUTO_INCREMENT") {return token(sym.KEYWORD, sym.AUTO_INCREMENT);}
 ("primary key" | "PRIMARY KEY")     {return token(sym.KEYWORD, sym.PRIMARY_KEY);}
 ("null" | "NULL")                   {return token(sym.KEYWORD, sym.NULL);}
 ("not null" | "NOT NULL")           {return token(sym.KEYWORD, sym.NOT_NULL);}

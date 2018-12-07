@@ -13,22 +13,22 @@
             <Image url="@../resources/images/splash.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="119.0" fitWidth="110.0" layoutX="33.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="119.0" fitWidth="110.0" layoutX="-3.0" layoutY="80.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../resources/images/database.png" />
          </image>
       </ImageView>
-      <Label layoutX="146.0" layoutY="195.0" prefHeight="38.0" prefWidth="408.0" text="Graphical User Interface tool for MySql, OracleDB" textFill="LIGHTGRAY">
+      <Label layoutX="146.0" layoutY="195.0" prefHeight="38.0" prefWidth="408.0" text="Graphical User Interface tool for MySql" textFill="LIGHTGRAY">
          <font>
             <Font name="Arial Narrow" size="20.0" />
          </font>
       </Label>
-      <Label layoutX="330.0" layoutY="55.0" prefHeight="159.0" prefWidth="171.0" text="Sql" textFill="#26cee8">
+      <Label layoutX="409.0" layoutY="57.0" prefHeight="159.0" prefWidth="171.0" text="Sql" textFill="#26cee8">
          <font>
             <Font name="Segoe UI Black" size="110.0" />
          </font>
       </Label>
-      <Label layoutX="139.0" layoutY="55.0" prefHeight="159.0" prefWidth="194.0" text="Ella" textFill="#d3d3d3">
+      <Label layoutX="94.0" layoutY="55.0" prefHeight="159.0" prefWidth="343.0" text="Prime" textFill="#d3d3d3">
          <font>
             <Font name="Segoe UI Black" size="110.0" />
          </font>
@@ -38,12 +38,12 @@
             <Font name="Arial Narrow" size="20.0" />
          </font>
       </Label>
-      <Label layoutX="501.0" layoutY="84.0" prefHeight="38.0" prefWidth="45.0" text="©" textFill="LIGHTGRAY">
+      <Label layoutX="575.0" layoutY="86.0" prefHeight="38.0" prefWidth="45.0" text="©" textFill="LIGHTGRAY">
          <font>
             <Font name="Segoe UI" size="36.0" />
          </font>
       </Label>
-      <Label layoutX="502.0" layoutY="146.0" prefHeight="38.0" prefWidth="29.0" text="1.0" textFill="LIGHTGRAY">
+      <Label layoutX="570.0" layoutY="297.0" prefHeight="38.0" prefWidth="29.0" text="1.0" textFill="LIGHTGRAY">
          <font>
             <Font name="Arial Narrow" size="22.0" />
          </font>
